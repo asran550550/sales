@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>روز لمستحضرات التجميل | نظام إدارة التصنيع والمبيعات والمخزون</title>
+  
+  <!-- Modern Arabic Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#c98860">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Backdrop overlay for mobile drawer -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <div id="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand-header">
+        <div class="brand-icon">
+          <!-- Sparkle / Flower Cosmetic Icon -->
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1 id="app-brand-name">روز لمستحضرات التجميل</h1>
+          <p id="app-brand-sub">نظام التصنيع والمبيعات والمخزون</p>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <a class="nav-item active" data-tab="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>لوحة التحكم</span>
+        </a>
+
+        <a class="nav-item" data-tab="pos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span>نقطة البيع (الكاشير)</span>
+        </a>
+
+        <a class="nav-item" data-tab="materials">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+          </svg>
+          <span>المواد الخام (بالجرام)</span>
+          <span id="nav-badge-materials" class="nav-badge" style="display:none;"></span>
+        </a>
+
+        <a class="nav-item" data-tab="products">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          <span>المنتجات والتصنيع (BOM)</span>
+          <span id="nav-badge-products" class="nav-badge warning" style="display:none;"></span>
+        </a>
+
+        <a class="nav-item" data-tab="invoices">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>سجل الفواتير</span>
+        </a>
+
+        <a class="nav-item" data-tab="inventory">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span>المخزون والجرد المالي</span>
+        </a>
+
+        <a class="nav-item" data-tab="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>الإعدادات والنسخ الاحتياطي</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-indicator">
+          <span class="status-dot"></span>
+          <span>يعمل بدون إنترنت (محلي)</span>
+        </div>
+        <span style="font-size:0.7rem; color:#64748b;">v1.0</span>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+      
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-right">
+          <button id="menu-toggle-btn" class="menu-toggle" aria-label="القائمة">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div class="page-title-box">
+            <h2 id="topbar-title">لوحة التحكم والمؤشرات</h2>
+            <p id="topbar-subtitle">نظرة عامة على المبيعات، الأرباح، والمخزون</p>
+          </div>
+        </div>
+
+        <div class="topbar-actions">
+          <button id="btn-topbar-mobile" class="btn btn-secondary btn-sm" onclick="App.openMobileModal()" title="تشغيل البرنامج على الموبايل عبر الواي فاي أو السيرفر السحابي">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+            <span>📱 تشغيل من الموبايل</span>
+          </button>
+          <button id="btn-topbar-seed" class="btn btn-secondary btn-sm" onclick="SettingsManager.handleResetDemoData()" title="شحن نماذج لمستحضرات التجميل (سيروم، كريمات، زيوت)">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/></svg>
+            <span>شحن خامات ومنتجات</span>
+          </button>
+          <button id="btn-quick-pos" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span>فاتورة جديدة (كاشير)</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- App Views Body -->
+      <div class="content-area">
+
+        <!-- ==========================================
+             TAB 1: DASHBOARD
+             ========================================== -->
+        <section id="tab-dashboard" class="tab-pane active">
+          
+          <!-- Welcome Demo Seeder Banner (visible if 0 products) -->
+          <div id="dash-empty-banner" style="display:none; background: linear-gradient(135deg, #fdf4ed 0%, #fff 100%); border: 2px dashed #c98860; border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; align-items: center; justify-content: space-between; gap: 1rem;">
+            <div>
+              <h3 style="color:var(--primary-dark); font-size:1.1rem; margin-bottom:0.35rem;">مرحباً بك في برنامج روز لمستحضرات التجميل 🌸</h3>
+              <p style="color:var(--text-secondary); font-size:0.88rem;">قاعدة البيانات فارغة حالياً. اضغط على الزر لشحن عينات تجريبية كاملة (12 مادة خام بالجرامات، 4 منتجات بتركيباتها وتكاليفها، وفواتير بيع):</p>
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="SettingsManager.handleResetDemoData(true)" style="flex-shrink:0;">
+              🌸 شحن البيانات التجريبية فوراً
+            </button>
+          </div>
+
+          <!-- KPI Metrics Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <p>إجمالي المبيعات المحققة</p>
+                <h3 id="dash-total-sales">0.00 ج.م</h3>
+              </div>
+              <div class="stat-icon emerald">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <p>صافي الأرباح (بعد التكلفة)</p>
+                <h3 id="dash-total-profit" style="color:var(--success);">+0.00 ج.م</h3>
+              </div>
+              <div class="stat-icon rose">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                  <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <p>عدد الفواتير المنفذة</p>
+                <h3 id="dash-invoices-count">0 فاتورة</h3>
+              </div>
+              <div class="stat-icon blue">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <p>قيمة مخزون المنتجات الجاهزة</p>
+                <h3 id="dash-inventory-val">0.00 ج.م</h3>
+              </div>
+              <div class="stat-icon teal">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <p>تنبيهات نواقص المخزون</p>
+                <h3 id="dash-low-stock-count" style="color:var(--danger);">0 أصناف</h3>
+              </div>
+              <div class="stat-icon amber">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.25rem;">
+            <!-- Recent Invoices List -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  آخر فواتير المبيعات
+                </h3>
+                <button class="btn btn-sm btn-secondary" onclick="App.switchTab('invoices')">عرض الكل</button>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>رقم الفاتورة</th>
+                      <th>العميل</th>
+                      <th>التاريخ</th>
+                      <th>الإجمالي</th>
+                      <th>الحالة</th>
+                      <th>إجراء</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dash-recent-invoices-tbody">
+                    <!-- Dynamic -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Low Stock Alerts Box -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title" style="color:var(--danger);">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  تنبيهات قرب نفاد الرصيد
+                </h3>
+              </div>
+              <div id="dash-low-stock-list">
+                <!-- Dynamic -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: POS (POINT OF SALE)
+             ========================================== -->
+        <section id="tab-pos" class="tab-pane">
+          <div class="pos-container">
+            
+            <!-- Products Catalog -->
+            <div class="pos-catalog">
+              <div class="toolbar" style="margin-bottom:0.6rem;">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="pos-search" class="form-control" placeholder="بحث بالاسم أو مسح باركود المنتج..." autofocus>
+                </div>
+              </div>
+
+              <!-- Categories Pill Filter -->
+              <div id="pos-categories-bar" class="pos-categories">
+                <!-- Dynamic categories -->
+              </div>
+
+              <!-- Products Grid -->
+              <div id="pos-products-grid" class="pos-products-grid">
+                <!-- Dynamic cards -->
+              </div>
+            </div>
+
+            <!-- POS Cart / Invoice Preview -->
+            <div class="pos-cart">
+              <div class="cart-header">
+                <h3>سلة الفاتورة الحالية</h3>
+                <span id="cart-items-count" class="badge badge-primary">0 صنف</span>
+              </div>
+
+              <div id="pos-cart-items" class="cart-items">
+                <!-- Cart items list -->
+              </div>
+
+              <div class="cart-footer">
+                <div class="cart-summary-line">
+                  <span>إجمالي الأصناف:</span>
+                  <span id="pos-subtotal-val">0.00 ج.م</span>
+                </div>
+
+                <div class="form-group" style="margin: 0.35rem 0;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label class="form-label" style="margin-bottom:0; font-size:0.8rem;">خصم إضافي (ج.م):</label>
+                    <input type="number" id="pos-discount" min="0" step="1" value="0" class="form-control" style="width:100px; padding:3px 6px; text-align:center; font-weight:bold;">
+                  </div>
+                </div>
+
+                <div class="cart-summary-line">
+                  <span>ضريبة المبيعات:</span>
+                  <span id="pos-tax-val">0.00 ج.م</span>
+                </div>
+
+                <div class="cart-total-line">
+                  <span>المبلغ النهائي المطلوب:</span>
+                  <span id="pos-total-val">0.00 ج.م</span>
+                </div>
+
+                <div style="display:flex; gap:0.5rem; margin-top:0.85rem;">
+                  <button id="btn-clear-cart" class="btn btn-secondary btn-icon" title="تفريغ السلة">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  </button>
+                  <button id="btn-checkout" class="btn btn-primary" style="flex:1;" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    دفع وإصدار الفاتورة
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: RAW MATERIALS (المواد الخام بالجرام)
+             ========================================== -->
+        <section id="tab-materials" class="tab-pane">
+          <div class="card">
+            <div class="toolbar">
+              <div style="display:flex; gap:0.75rem; flex-wrap:wrap; flex:1;">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="search-materials" class="form-control" placeholder="بحث باسم المادة، الكود، أو المورد...">
+                </div>
+
+                <select id="filter-material-category" class="form-control" style="max-width:200px;">
+                  <option value="all">جميع التصنيفات</option>
+                </select>
+              </div>
+
+              <button id="btn-add-material" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                إضافة مادة خام جديدة
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>الكود</th>
+                    <th>اسم المادة الخام</th>
+                    <th>التصنيف</th>
+                    <th>سعر التكلفة (جم / كجم)</th>
+                    <th>الرصيد المتاح (بالجرام)</th>
+                    <th>حد التنبيه</th>
+                    <th>إجمالي قيمة الرصيد</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="materials-table-body">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: PRODUCTS & FORMULATION (BOM)
+             ========================================== -->
+        <section id="tab-products" class="tab-pane">
+          <div class="card">
+            <div class="toolbar">
+              <div style="display:flex; gap:0.75rem; flex-wrap:wrap; flex:1;">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="search-products" class="form-control" placeholder="بحث بالاسم، الكود، أو الفئة...">
+                </div>
+
+                <select id="filter-product-category" class="form-control" style="max-width:200px;">
+                  <option value="all">جميع التصنيفات</option>
+                </select>
+              </div>
+
+              <button id="btn-add-product" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                إضافة وتصنيع منتج جديد
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>الكود</th>
+                    <th>اسم المنتج النهائي</th>
+                    <th>التصنيف</th>
+                    <th>تكلفة المنتج (BOM)</th>
+                    <th>سعر البيع</th>
+                    <th>هامش الربح</th>
+                    <th>المخزون الجاهز</th>
+                    <th>إجراءات التصنيع والبيع</th>
+                  </tr>
+                </thead>
+                <tbody id="products-table-body">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 5: INVOICES LOG
+             ========================================== -->
+        <section id="tab-invoices" class="tab-pane">
+          <div class="card">
+            <div class="toolbar">
+              <div style="display:flex; gap:0.75rem; flex-wrap:wrap; flex:1;">
+                <div class="search-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="search-invoices" class="form-control" placeholder="بحث برقم الفاتورة، العميل، الهاتف...">
+                </div>
+
+                <select id="filter-invoice-status" class="form-control" style="max-width:180px;">
+                  <option value="all">جميع الحالات</option>
+                  <option value="completed">مكتملة</option>
+                  <option value="refunded">مسترجعة</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>رقم الفاتورة</th>
+                    <th>التاريخ والوقت</th>
+                    <th>العميل</th>
+                    <th>الأصناف المباعة</th>
+                    <th>صافي القيمة</th>
+                    <th>صافي الربح</th>
+                    <th>الدفع</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="invoices-table-body">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 6: INVENTORY & VALUATION
+             ========================================== -->
+        <section id="tab-inventory" class="tab-pane">
+          
+          <!-- Valuation Summary Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <p>قيمة تكلفة المواد الخام بالمخزن</p>
+                <h3 id="inv-materials-value">0.00 ج.م</h3>
+                <span id="inv-low-mat-badge" class="badge badge-warning" style="margin-top:0.4rem;">0 مواد ناقصة</span>
+              </div>
+              <div class="stat-icon rose">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <p>قيمة تكلفة المنتجات التامة بالمخزن</p>
+                <h3 id="inv-products-cost-value">0.00 ج.م</h3>
+                <span id="inv-low-prod-badge" class="badge badge-warning" style="margin-top:0.4rem;">0 منتجات ناقصة</span>
+              </div>
+              <div class="stat-icon teal">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <p>القيمة البيعية المتوقعة للمنتجات</p>
+                <h3 id="inv-potential-sales-value" style="color:var(--primary-dark);">0.00 ج.م</h3>
+                <span style="font-size:0.75rem; color:var(--text-muted);">بسعر البيع الحالي</span>
+              </div>
+              <div class="stat-icon blue">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <p>الأرباح المتوقعة عند بيع المخزون</p>
+                <h3 id="inv-potential-profit-value" style="color:var(--success);">+0.00 ج.م</h3>
+                <span class="badge badge-success" style="margin-top:0.4rem;">أرباح متوقعة</span>
+              </div>
+              <div class="stat-icon emerald">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+              <button class="cat-btn inv-subtab-btn active" data-subtab="materials">جرد المواد الخام (بالجرام)</button>
+              <button class="cat-btn inv-subtab-btn" data-subtab="products">جرد المنتجات التامة الصنع (بالعبوات)</button>
+            </div>
+
+            <!-- Table 1: Raw Materials Stock -->
+            <div class="table-responsive">
+              <table id="inv-table-materials" class="custom-table">
+                <thead>
+                  <tr>
+                    <th>الكود</th>
+                    <th>اسم المادة الخام</th>
+                    <th>التصنيف</th>
+                    <th>الكمية المخزنة</th>
+                    <th>تكلفة الجرام</th>
+                    <th>إجمالي قيمة المخزون</th>
+                    <th>حالة الرصيد</th>
+                  </tr>
+                </thead>
+                <tbody id="inv-materials-tbody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+
+              <!-- Table 2: Finished Products Stock -->
+              <table id="inv-table-products" class="custom-table" style="display:none;">
+                <thead>
+                  <tr>
+                    <th>الكود</th>
+                    <th>اسم المنتج</th>
+                    <th>التصنيف</th>
+                    <th>الرصيد المتاح</th>
+                    <th>تكلفة العبوة</th>
+                    <th>سعر البيع</th>
+                    <th>إجمالي التكلفة</th>
+                    <th>إجمالي المبيعات</th>
+                    <th>الربح المتوقع</th>
+                    <th>الحالة</th>
+                  </tr>
+                </thead>
+                <tbody id="inv-products-tbody">
+                  <!-- Dynamic -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 7: SETTINGS & BACKUP (الإعدادات والنسخ الاحتياطي)
+             ========================================== -->
+        <section id="tab-settings" class="tab-pane">
+          <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:1.25rem;">
+            
+            <!-- Store Profile Settings -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  بيانات المتجر والفواتير
+                </h3>
+              </div>
+
+              <form id="form-settings">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">اسم النشاط التجاري / المعمل</label>
+                    <input type="text" id="setting-store-name" class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">الوصف / السلوجان</label>
+                    <input type="text" id="setting-store-sub" class="form-control">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">رمز العملة (مثال: ج.م، ر.س، $)</label>
+                    <input type="text" id="setting-currency" class="form-control" style="width:140px;" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">رقم الهاتف</label>
+                    <input type="text" id="setting-phone" class="form-control">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">العنوان</label>
+                    <input type="text" id="setting-address" class="form-control">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">رسالة تذييل الفاتورة (تظهر أسفل الإيصال المطبوع)</label>
+                  <textarea id="setting-footer" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="form-row" style="background:#f8fafc; padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:1rem;">
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:600; font-size:0.9rem;">
+                      <input type="checkbox" id="setting-tax-enabled" style="width:18px; height:18px;">
+                      تفعيل ضريبة القيمة المضافة على الفواتير
+                    </label>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" style="font-size:0.8rem;">نسبة الضريبة %</label>
+                    <input type="number" id="setting-tax-percent" min="0" max="100" step="0.5" class="form-control" style="width:100px;">
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                  حفظ التعديلات
+                </button>
+              </form>
+            </div>
+
+            <!-- Backup & Restore Operations -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  النسخ الاحتياطي وقاعدة البيانات
+                </h3>
+              </div>
+
+              <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1.25rem;">
+                يتم حفظ جميع بيانات المواد الخام والتركيبات والفواتير محلياً وبشكل دائم داخل متصفحك (IndexedDB).
+                يمكنك تحميل نسخة احتياطية كاملة ونقلها إلى هاتفك أو جهاز كمبيوتر آخر واسترجاعها في أي لحظة.
+              </p>
+
+              <div style="display:flex; flex-direction:column; gap:0.85rem;">
+                <!-- Export Backup -->
+                <button id="btn-export-backup" class="btn btn-accent btn-lg" style="width:100%;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  تحميل نسخة احتياطية كاملة (Backup JSON)
+                </button>
+
+                <!-- Import Backup -->
+                <label class="btn btn-secondary btn-lg" style="width:100%; cursor:pointer;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  استرجاع نسخة احتياطية من ملف (Restore JSON)
+                  <input type="file" id="file-import-backup" accept=".json" style="display:none;">
+                </label>
+
+                <!-- CSV Exports -->
+                <div style="border-top:1px dashed var(--border); padding-top:0.85rem; margin-top:0.4rem; display:flex; gap:0.5rem;">
+                  <button id="btn-export-csv-invoices" class="btn btn-secondary btn-sm" style="flex:1;">
+                    تصدير الفواتير للإكسل (CSV)
+                  </button>
+                  <button id="btn-export-csv-products" class="btn btn-secondary btn-sm" style="flex:1;">
+                    تصدير المنتجات والتكاليف (CSV)
+                  </button>
+                </div>
+
+                <!-- Reset Demo Data -->
+                <button id="btn-reset-demo-data" class="btn btn-sm btn-danger" style="margin-top:1rem;">
+                  إعادة ضبط المصنع وشحن البيانات التجريبية
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- =========================================================================
+       MODALS
+       ========================================================================= -->
+
+  <!-- Modal 1: Raw Material Add/Edit -->
+  <div id="modal-material" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-material-title">إضافة مادة خام جديدة</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="form-material">
+        <div class="modal-body">
+          <input type="hidden" id="mat-id">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"><span class="req">*</span> كود المادة الخام</label>
+              <input type="text" id="mat-code" class="form-control" required>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label"><span class="req">*</span> اسم المادة الخام</label>
+              <input type="text" id="mat-name" class="form-control" placeholder="مثال: زيت الأرغان، زبدة الشيا، شمع النحل..." required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">التصنيف</label>
+              <input type="text" id="mat-category" class="form-control" placeholder="زيوت، زبدة وشموع، مستحلبات، عطور...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">المورد</label>
+              <input type="text" id="mat-supplier" class="form-control" placeholder="اسم الشركة أو التاجر">
+            </div>
+          </div>
+
+          <!-- Cost sync calculator -->
+          <div style="background:#fdfbf9; border:1px solid #ebd9cc; border-radius:var(--radius-md); padding:0.85rem; margin-bottom:1rem;">
+            <div style="font-size:0.82rem; font-weight:700; color:var(--primary-dark); margin-bottom:0.5rem;">
+              حاسبة تكلفة المادة الخام (بالجرام والكيلو):
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label"><span class="req">*</span> سعر تكلفة الجرام الواحد</label>
+                <input type="number" id="mat-cost-gram" step="0.0001" min="0.0001" class="form-control" placeholder="0.25" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">سعر تكلفة الكيلو (1000 جم)</label>
+                <input type="number" id="mat-cost-kg" step="0.1" min="0.1" class="form-control" placeholder="250">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"><span class="req">*</span> الرصيد الحالي المتوفر (بالجرام)</label>
+              <input type="number" id="mat-stock" step="1" min="0" class="form-control" placeholder="مثال: 5000" required>
+              <div class="input-hint">كل 1 كجم = 1000 جرام</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">حد التنبيه لإعادة الطلب (بالجرام)</label>
+              <input type="number" id="mat-min-stock" step="1" min="0" class="form-control" placeholder="مثال: 500">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">ملاحظات ومواصفات المادة</label>
+            <textarea id="mat-notes" class="form-control" rows="2" placeholder="درجة النقاء، شروط التخزين، إلخ..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+          <button type="submit" class="btn btn-primary">حفظ المادة الخام</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Material Stock Supply (تزويد رصيد خامات) -->
+  <div id="modal-stock-supply" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="stock-supply-title">تزويد رصيد مادة خام</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form onsubmit="MaterialsManager.handleStockSupply(event)">
+        <div class="modal-body">
+          <input type="hidden" id="stock-supply-mat-id">
+          
+          <div style="margin-bottom:1rem; font-size:0.9rem;">
+            <span>الرصيد المتاح حالياً بالمخزن: </span>
+            <strong id="stock-current-grams" style="color:var(--primary-dark);">0 جم</strong>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><span class="req">*</span> الكمية المضافة بالجرام</label>
+            <input type="number" id="stock-add-grams" step="1" min="1" class="form-control" placeholder="مثال: 2000 جم (أي 2 كجم)" required autofocus>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">ملاحظات التوريد أو الفاتورة</label>
+            <input type="text" id="stock-add-notes" class="form-control" placeholder="رقم إذن الاستلام أو الشحنة...">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+          <button type="submit" class="btn btn-primary">تأكيد إضافة الرصيد</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Product & Formulation Builder (BOM) -->
+  <div id="modal-product" class="modal-backdrop">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3 id="modal-product-title">إنشاء وتركيب منتج تجميلي جديد (BOM)</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="form-product">
+        <div class="modal-body">
+          <input type="hidden" id="prod-id">
+
+          <!-- Product Basic Info -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"><span class="req">*</span> كود المنتج / باركود</label>
+              <input type="text" id="prod-code" class="form-control" required>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label"><span class="req">*</span> اسم المنتج النهائي</label>
+              <input type="text" id="prod-name" class="form-control" placeholder="مثال: سيروم الذهب، كريم زبدة الشيا، مقشر اللافندر..." required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">التصنيف</label>
+              <input type="text" id="prod-category" class="form-control" placeholder="سيروم، كريمات، مقشرات، غسول...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">الوزن الصافي للعبوة (بالجرام)</label>
+              <input type="number" id="prod-net-weight" step="0.1" class="form-control" placeholder="30 أو 100 جم">
+            </div>
+            <div class="form-group">
+              <label class="form-label">الرصيد المبدئي الجاهز (عبوات)</label>
+              <input type="number" id="prod-stock" min="0" value="0" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">حد التنبيه لنقص العبوات</label>
+              <input type="number" id="prod-min-stock" min="0" value="5" class="form-control">
+            </div>
+          </div>
+
+          <!-- Formula / Recipe Builder (المواد الخام بالجرام لكل عبوة) -->
+          <div class="formula-builder">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <div>
+                <strong style="color:var(--primary-dark); font-size:0.95rem;">تركيبة المواد الخام لكل عبوة واحدة (Recipe / BOM)</strong>
+                <p style="font-size:0.75rem; color:var(--text-secondary);">اختر المواد الخام وحدد وزن كل مادة بالجرام لحساب تكلفة التركيبة بدقة</p>
+              </div>
+              <button type="button" id="btn-add-ingredient-row" class="btn btn-sm btn-primary">
+                + إضافة مكون خام
+              </button>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 40px; gap:0.75rem; padding:0.4rem 0.85rem; font-size:0.78rem; font-weight:700; color:var(--text-secondary);">
+              <div>المادة الخام</div>
+              <div>الوزن بالجرام</div>
+              <div>تكلفة الجرام</div>
+              <div>إجمالي التكلفة</div>
+              <div></div>
+            </div>
+
+            <!-- Dynamic Ingredients Rows Container -->
+            <div id="ingredients-container">
+              <!-- Dynamically populated rows -->
+            </div>
+          </div>
+
+          <!-- Additional Costs & Overhead -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">تكلفة التغليف والعبوة (زجاجة + استيكر + علبة)</label>
+              <input type="number" id="prod-packaging-cost" step="0.5" min="0" value="8" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">المصنعية والتشغيل لكل عبوة</label>
+              <input type="number" id="prod-labor-cost" step="0.5" min="0" value="4" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">نوع هامش الربح</label>
+              <select id="prod-profit-type" class="form-control">
+                <option value="percent">نسبة مئوية (%)</option>
+                <option value="fixed">مبلغ مالي ثابت (ج.م)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">قيمة هامش الربح المطلوب</label>
+              <input type="number" id="prod-profit-margin" step="1" min="0" value="60" class="form-control">
+            </div>
+          </div>
+
+          <!-- Live Dynamic Costing Summary -->
+          <div class="formula-summary-box">
+            <div class="calc-row">
+              <span>إجمالي تكلفة المواد الخام للعبوة:</span>
+              <strong><span id="calc-raw-materials-val">0.00</span> ج.م</strong>
+            </div>
+            <div class="calc-row">
+              <span>تكلفة العبوة والتغليف:</span>
+              <strong><span id="calc-packaging-val">0.00</span> ج.م</strong>
+            </div>
+            <div class="calc-row">
+              <span>المصنعية والتشغيل:</span>
+              <strong><span id="calc-labor-val">0.00</span> ج.م</strong>
+            </div>
+            <div class="calc-row total-row">
+              <span>التكلفة الإجمالية للقطعة الواحدة (Cost Price):</span>
+              <strong><span id="calc-total-cost-val" data-val="0">0.00</span> ج.م</strong>
+            </div>
+
+            <div class="selling-price-highlight">
+              <h4>سعر البيع النهائي المقترح (شامل التكلفة + الربح):</h4>
+              <div style="display:flex; justify-content:center; align-items:center; gap:0.5rem; margin-top:0.4rem;">
+                <input type="number" id="prod-selling-price" step="0.5" min="0" class="form-control" style="max-width:200px; text-align:center; font-size:1.4rem; font-weight:800; color:var(--primary-dark);">
+                <span style="font-weight:bold; font-size:1.1rem; color:var(--primary-dark);">ج.م</span>
+              </div>
+              <div id="calc-profit-val-badge" class="badge badge-success" style="margin-top:0.5rem; font-size:0.85rem; padding:4px 12px;">
+                صافي الربح للعبوة: +0.00
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:1rem;">
+            <label class="form-label">ملاحظات إضافية أو طريقة التحضير</label>
+            <textarea id="prod-notes" class="form-control" rows="2" placeholder="تعليمات الخلط، درجة الحرارة، الفوائد التسويقية..."></textarea>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+          <button type="submit" class="btn btn-primary">حفظ المنتج والتركيبة</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Batch Production (تصنيع دفعة عبوات جديدة وخصم الخامات) -->
+  <div id="modal-batch-produce" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>تصنيع دفعة إنتاج جديدة</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="form-batch-produce">
+        <div class="modal-body">
+          <input type="hidden" id="batch-prod-id">
+
+          <div style="background:#fdfbf9; padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:1rem;">
+            <div style="font-size:0.8rem; color:var(--text-secondary);">المنتج المراد تصنيعه:</div>
+            <h4 id="batch-prod-name" style="font-size:1.15rem; color:var(--primary-dark); margin:0.25rem 0;">-</h4>
+            <div style="font-size:0.8rem; color:var(--text-muted);">
+              الرصيد الجاهز حالياً: <span id="batch-prod-cur-stock">0 عبوة</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><span class="req">*</span> عدد العبوات المراد إنتاجها وتعبئتها:</label>
+            <input type="number" id="batch-quantity" min="1" step="1" value="10" class="form-control" style="font-size:1.2rem; font-weight:700;" required>
+          </div>
+
+          <!-- Dynamic Materials Checklist & Stock Sufficiency -->
+          <div style="margin-top:1.25rem;">
+            <div style="font-size:0.85rem; font-weight:700; margin-bottom:0.5rem; color:var(--text-primary);">
+              فحص كفاية المواد الخام المطلوبة لإنتاج هذه الكمية:
+            </div>
+            <div id="batch-ingredients-checklist" style="background:#f8fafc; border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; max-height:220px; overflow-y:auto;">
+              <!-- Dynamic checklist -->
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:1rem;">
+            <label class="form-label">ملاحظات التشغيل (رقم الباتش أو اسم الفني)</label>
+            <input type="text" id="batch-notes" class="form-control" placeholder="تشغيل روتيني لمعمل المستحضرات...">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+          <button type="submit" id="btn-confirm-batch" class="btn btn-accent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            تأكيد الإنتاج وخصم الجرامات
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 5: Recipe & Cost Card Viewer -->
+  <div id="modal-recipe-view" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="recipe-view-title">بطاقة التركيبة والتكاليف</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#fdfbf9; padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-secondary);">الوزن الصافي للعبوة</div>
+            <strong id="recipe-net-weight">-</strong>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-secondary);">التكلفة الإجمالية</div>
+            <strong id="recipe-total-cost" style="color:var(--text-primary);">-</strong>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-secondary);">سعر البيع</div>
+            <strong id="recipe-selling-price" style="color:var(--accent);">-</strong>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-secondary);">صافي الربح</div>
+            <span id="recipe-profit-val" class="badge badge-success">-</span>
+          </div>
+        </div>
+
+        <h4 style="font-size:0.9rem; margin-bottom:0.5rem; color:var(--text-primary);">مكونات التركيبة (لكل عبوة واحدة):</h4>
+        <div class="table-responsive" style="margin-bottom:1rem;">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>المادة الخام</th>
+                <th>الوزن بالجرام</th>
+                <th>تكلفة الجرام</th>
+                <th>التكلفة الجزئية</th>
+              </tr>
+            </thead>
+            <tbody id="recipe-ingredients-body">
+              <!-- Dynamic -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.8; background:#f8fafc; padding:0.75rem; border-radius:var(--radius-md);">
+          <div>• إجمالي تكلفة المواد الخام: <strong id="recipe-raw-val">0.00</strong></div>
+          <div>• تكلفة العبوة والتغليف: <strong id="recipe-packaging-val">0.00</strong></div>
+          <div>• مصنعية التشغيل: <strong id="recipe-labor-val">0.00</strong></div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: POS Checkout & Customer Payment -->
+  <div id="modal-checkout" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>إتمام عملية البيع وإصدار الفاتورة</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <div style="text-align:center; padding:1.25rem; background:var(--primary-light); border-radius:var(--radius-lg); margin-bottom:1.25rem;">
+          <div style="font-size:0.85rem; color:var(--primary-dark); font-weight:600;">المبلغ المطلوب سداده:</div>
+          <h2 id="checkout-modal-total" style="font-size:2.2rem; font-weight:800; color:var(--primary-dark); margin-top:0.25rem;">0.00 ج.م</h2>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">اسم العميل</label>
+            <input type="text" id="checkout-customer-name" class="form-control" value="عميل نقدي" placeholder="اسم العميل">
+          </div>
+          <div class="form-group">
+            <label class="form-label">رقم الهاتف</label>
+            <input type="text" id="checkout-customer-phone" class="form-control" placeholder="01xxxxxxxxx">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">طريقة الدفع</label>
+          <select id="checkout-payment-method" class="form-control">
+            <option value="cash">نقدي (كاش)</option>
+            <option value="card">بطاقة دفع إلكتروني / فيزا</option>
+            <option value="transfer">تحويل بنكي / محفظة فودافون كاش</option>
+            <option value="credit">آجل (سداد لاحق)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ملاحظات الفاتورة</label>
+          <input type="text" id="checkout-notes" class="form-control" placeholder="طلب أونلاين، هدية مجانية...">
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>تراجع</button>
+        <button type="button" id="btn-confirm-payment-noprint" class="btn btn-secondary">
+          حفظ فقط بدون طباعة
+        </button>
+        <button type="button" id="btn-confirm-payment" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          حفظ وطباعة الإيصال
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Invoice Details Viewer -->
+  <div id="modal-invoice-detail" class="modal-backdrop">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3>تفاصيل فاتورة المبيعات</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem; background:#f8fafc; padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:1rem;">
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">رقم الفاتورة:</div>
+            <strong id="inv-detail-num" style="font-size:1.1rem; color:var(--primary-dark);">-</strong>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">التاريخ:</div>
+            <strong id="inv-detail-date">-</strong>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">العميل:</div>
+            <strong id="inv-detail-customer">-</strong>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">الحالة:</div>
+            <div id="inv-detail-status">-</div>
+          </div>
+        </div>
+
+        <div class="table-responsive" style="margin-bottom:1rem;">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>المنتج</th>
+                <th>سعر التكلفة</th>
+                <th>سعر البيع</th>
+                <th>الكمية</th>
+                <th>الإجمالي</th>
+                <th>الربح</th>
+              </tr>
+            </thead>
+            <tbody id="inv-detail-items">
+              <!-- Dynamic -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="background:#fdfbf9; padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border); max-width:350px; margin-right:auto;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.35rem; font-size:0.85rem;">
+            <span>المجموع الفرعي:</span>
+            <strong id="inv-detail-subtotal">0.00</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.35rem; font-size:0.85rem;">
+            <span>الخصم:</span>
+            <strong id="inv-detail-discount" style="color:var(--danger);">0.00</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.35rem; font-size:0.85rem;">
+            <span>الضريبة:</span>
+            <strong id="inv-detail-tax">0.00</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:1.15rem; font-weight:800; color:var(--primary-dark); border-top:1px dashed var(--border); padding-top:0.4rem;">
+            <span>الصافي النهائي:</span>
+            <span id="inv-detail-total">0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--success); margin-top:0.35rem;">
+            <span>صافي ربح الفاتورة:</span>
+            <strong id="inv-detail-profit">+0.00</strong>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>إغلاق</button>
+        <button type="button" id="btn-modal-reprint" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          طباعة الإيصال
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 8: Mobile Connection Guide (طريقة تشغيل الموبايل) -->
+  <div id="modal-mobile-guide" class="modal-backdrop">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <h3>📱 تشغيل البرنامج على الهاتف المحمول</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem;">
+          
+          <!-- Option 1: Local Wi-Fi -->
+          <div style="background:#f8fafc; border:2px solid #e2e8f0; border-radius:var(--radius-lg); padding:1.25rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+                <span class="badge badge-primary" style="font-size:0.85rem;">الطريقة 1</span>
+                <strong style="color:var(--primary-dark); font-size:1.05rem;">عبر شبكة الواي فاي (فوري)</strong>
+              </div>
+              <p style="font-size:0.84rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem;">
+                إذا كان هاتفك متصلاً بنفس شبكة الواي فاي المنزلية أو في المعمل، يمكنك الدخول مباشرة بدون إنترنت!
+              </p>
+
+              <div style="background:white; border:1px solid var(--border); border-radius:var(--radius-md); padding:0.85rem; text-align:center; margin-bottom:1rem;">
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.35rem;">عنوان الرابط المباشر لهاتفك:</div>
+                <div style="font-size:1.25rem; font-weight:800; color:var(--primary-dark); direction:ltr; user-select:all;" id="mobile-local-ip-text">
+                  http://192.168.1.2:8080
+                </div>
+              </div>
+
+              <!-- QR Code image for easy scanning -->
+              <div style="text-align:center; margin-bottom:1rem;">
+                <div style="display:inline-block; padding:8px; background:white; border:1px solid var(--border); border-radius:var(--radius-md);">
+                  <img id="mobile-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=http://192.168.1.2:8080" alt="مسح QR Code" style="width:140px; height:140px; display:block;">
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">امسح الكود بكاميرا الموبايل لفتح الرابط فورا</div>
+              </div>
+            </div>
+
+            <div style="font-size:0.78rem; color:var(--text-secondary); border-top:1px dashed var(--border); padding-top:0.75rem;">
+              💡 <strong>ملاحظة:</strong> لتشغيل السيرفر اضغط مرتين على ملف <strong>تشغيل_السيرفر_للموبايل.bat</strong> في مجلد البرنامج.
+            </div>
+          </div>
+
+          <!-- Option 2: Cloud Upload (Netlify / Vercel) -->
+          <div style="background:linear-gradient(135deg, #fdfbf9 0%, #fff 100%); border:2px solid #e4cfc2; border-radius:var(--radius-lg); padding:1.25rem; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+                <span class="badge badge-success" style="font-size:0.85rem;">الطريقة 2 (الموصى بها)</span>
+                <strong style="color:var(--accent); font-size:1.05rem;">رفعه على استضافة سحابية مجانية</strong>
+              </div>
+              <p style="font-size:0.84rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1rem;">
+                للحصول على رابط دائم يعمل في أي وقت ومن أي مكان (حتى بدون كمبيوتر وعبر باقة 4G/5G):
+              </p>
+
+              <div style="font-size:0.84rem; line-height:1.8; color:var(--text-primary); margin-bottom:1rem;">
+                <strong>الخطوات في 30 ثانية مجاناً:</strong>
+                <ol style="padding-right:1.2rem; margin-top:0.4rem;">
+                  <li>افتح موقع <strong><a href="https://app.netlify.com/drop" target="_blank" style="color:var(--primary-dark); font-weight:bold;">Netlify Drop</a></strong></li>
+                  <li>اسحب مجلد <strong>F:\sales</strong> وأفلته داخل الصفحة.</li>
+                  <li>سيعطيك الموقع رابطاً رسمياً دائم (HTTPS) مثل:
+                    <div style="font-family:monospace; background:#f1f5f9; padding:4px 8px; border-radius:4px; margin-top:4px; font-size:0.8rem; direction:ltr; text-align:left;">https://rose-cosmetics.netlify.app</div>
+                  </li>
+                  <li>افتح الرابط من هاتفك واضغط على (إضافة إلى الشاشة الرئيسية Add to Home Screen) ليصبح تطبيقاً حقيقياً على شاشة هاتفك!</li>
+                </ol>
+              </div>
+            </div>
+
+            <div style="text-align:center;">
+              <a href="https://app.netlify.com/drop" target="_blank" class="btn btn-accent" style="width:100%;">
+                فتح موقع Netlify Drop المجاني للرفع الآن 🚀
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-modal-close>إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Container (Thermal & A4) -->
+  <div id="print-area"></div>
+
+  <!-- Toasts Notifications -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/db.js"></script>
+  <script src="js/materials.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/pos.js"></script>
+  <script src="js/invoices.js"></script>
+  <script src="js/inventory.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
