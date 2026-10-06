@@ -38,8 +38,20 @@ const App = {
   },
 
   bindNavigation() {
+    // Desktop sidebar navigation
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const tab = item.dataset.tab;
+        this.switchTab(tab);
+        this.closeMobileDrawer();
+      });
+    });
+
+    // Mobile bottom navigation bar
+    const bottomNavItems = document.querySelectorAll('.bottom-nav-item[data-tab]');
+    bottomNavItems.forEach(item => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
         const tab = item.dataset.tab;
@@ -58,8 +70,13 @@ const App = {
   switchTab(tabId) {
     this.currentTab = tabId;
 
-    // Update active class on nav
+    // Update active class on desktop sidebar nav
     document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.tab === tabId);
+    });
+
+    // Update active class on mobile bottom nav
+    document.querySelectorAll('.bottom-nav-item[data-tab]').forEach(item => {
       item.classList.toggle('active', item.dataset.tab === tabId);
     });
 
@@ -71,6 +88,9 @@ const App = {
     if (targetPane) {
       targetPane.classList.add('active');
     }
+
+    // Scroll to top of content on tab switch
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Update Topbar Title
     const titles = {
@@ -84,8 +104,10 @@ const App = {
     };
 
     const header = titles[tabId] || { title: 'نظام إدارة المبيعات', sub: '' };
-    document.getElementById('topbar-title').textContent = header.title;
-    document.getElementById('topbar-subtitle').textContent = header.sub;
+    const topTitle = document.getElementById('topbar-title');
+    const topSub = document.getElementById('topbar-subtitle');
+    if (topTitle) topTitle.textContent = header.title;
+    if (topSub) topSub.textContent = header.sub;
 
     // Trigger tab-specific refresh
     if (tabId === 'dashboard') this.updateDashboard();
@@ -95,18 +117,41 @@ const App = {
 
   bindMobileDrawer() {
     const toggleBtn = document.getElementById('menu-toggle-btn');
+    const bottomMenuBtn = document.getElementById('bottom-nav-menu-btn');
+    const closeBtn = document.getElementById('sidebar-close-btn');
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('sidebar-overlay');
 
-    if (toggleBtn && sidebar && overlay) {
-      toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('active');
-      });
+    const openDrawer = (e) => {
+      if (e) e.preventDefault();
+      if (sidebar) sidebar.classList.add('open');
+      if (overlay) overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
 
-      overlay.addEventListener('click', () => {
-        this.closeMobileDrawer();
-      });
+    const closeDrawer = (e) => {
+      if (e) e.preventDefault();
+      this.closeMobileDrawer();
+    };
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', openDrawer);
+      toggleBtn.addEventListener('touchend', (e) => { e.preventDefault(); openDrawer(); });
+    }
+
+    if (bottomMenuBtn) {
+      bottomMenuBtn.addEventListener('click', openDrawer);
+      bottomMenuBtn.addEventListener('touchend', (e) => { e.preventDefault(); openDrawer(); });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeDrawer);
+      closeBtn.addEventListener('touchend', (e) => { e.preventDefault(); closeDrawer(); });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', closeDrawer);
+      overlay.addEventListener('touchend', (e) => { e.preventDefault(); closeDrawer(); });
     }
   },
 
@@ -115,6 +160,7 @@ const App = {
     const overlay = document.getElementById('sidebar-overlay');
     if (sidebar) sidebar.classList.remove('open');
     if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
   },
 
   bindModals() {

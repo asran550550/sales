@@ -12,7 +12,7 @@
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c98860">
-  <link rel="stylesheet" href="css/style.css?v=2.1">
+  <link rel="stylesheet" href="css/style.css?v=2.3">
   <style>
 /* ==========================================================================
    RoseCosmetics - Luxury Cosmetic Manufacturing & Sales System
@@ -308,11 +308,50 @@ svg {
 
 .menu-toggle {
   display: none;
-  background: none;
-  border: none;
-  color: var(--text-primary);
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: var(--primary-dark);
   cursor: pointer;
-  padding: 4px;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+
+.menu-toggle:hover, .menu-toggle:active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.sidebar-close-btn {
+  display: none;
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #ffffff;
+  font-size: 1.25rem;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  margin-right: auto;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.sidebar-close-btn:hover, .sidebar-close-btn:active {
+  background: rgba(255,255,255,0.25);
+}
+
+.bottom-nav {
+  display: none;
 }
 
 .page-title-box h2 {
@@ -1191,60 +1230,285 @@ svg {
   :root {
     --sidebar-width: 0px;
   }
-  
+
+  /* Fixed Slide-out Sidebar for Mobile */
   .sidebar {
-    transform: translateX(100%);
-    width: 270px;
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    right: -310px !important;
+    left: auto !important;
+    width: 280px !important;
+    max-width: 85vw !important;
+    height: 100vh !important;
+    z-index: 99999 !important;
+    box-shadow: -8px 0 30px rgba(0,0,0,0.4) !important;
+    transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transform: none !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
-  
+
   .sidebar.open {
-    transform: translateX(0);
+    right: 0 !important;
+  }
+
+  .sidebar-close-btn {
+    display: inline-flex !important;
   }
 
   .sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 95;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(3px) !important;
+    z-index: 99990 !important;
     display: none;
   }
+
   .sidebar-overlay.active {
-    display: block;
+    display: block !important;
   }
 
   .main-wrapper {
-    margin-right: 0;
-    width: 100%;
-    max-width: 100%;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-bottom: 74px !important;
   }
 
   .menu-toggle {
-    display: block;
+    display: inline-flex !important;
   }
 
+  /* Topbar mobile adjustments */
+  .topbar {
+    padding: 0.65rem 0.85rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .topbar-right {
+    gap: 0.65rem !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+
+  .page-title-box h2 {
+    font-size: 1rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .page-title-box p {
+    display: none !important;
+  }
+
+  .topbar-actions {
+    gap: 0.4rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  #btn-topbar-mobile {
+    display: none !important;
+  }
+
+  #btn-topbar-seed {
+    padding: 0.45rem 0.6rem !important;
+  }
+
+  #btn-topbar-seed span {
+    display: none !important;
+  }
+
+  #btn-quick-pos {
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  #btn-quick-pos span {
+    display: none !important;
+  }
+
+  /* Bottom Navigation Bar for Mobile */
+  .bottom-nav {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 64px !important;
+    background: #ffffff !important;
+    border-top: 1px solid var(--border) !important;
+    z-index: 990 !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.06) !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+
+  .bottom-nav-item {
+    background: none !important;
+    border: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    font-family: inherit !important;
+    color: var(--text-secondary) !important;
+    cursor: pointer !important;
+    padding: 6px 8px !important;
+    border-radius: 8px !important;
+    flex: 1 !important;
+    height: 100% !important;
+    transition: all 0.15s ease !important;
+    touch-action: manipulation !important;
+  }
+
+  .bottom-nav-item svg {
+    width: 20px !important;
+    height: 20px !important;
+    stroke: var(--text-secondary) !important;
+  }
+
+  .bottom-nav-item.active {
+    color: var(--primary-dark) !important;
+    font-weight: 700 !important;
+  }
+
+  .bottom-nav-item.active svg {
+    stroke: var(--primary-dark) !important;
+  }
+
+  /* POS Mobile Layout */
   .pos-container {
-    grid-template-columns: 1fr;
-    height: auto;
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    height: auto !important;
+    gap: 1rem !important;
+  }
+
+  .pos-catalog {
+    overflow: visible !important;
+  }
+
+  .pos-products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   .pos-cart {
-    height: 480px;
-    margin-top: 1rem;
+    height: auto !important;
+    min-height: 400px !important;
+    margin-top: 0.5rem !important;
   }
 
   .content-area {
-    padding: 1rem;
+    padding: 0.75rem !important;
+    padding-bottom: 74px !important;
   }
 
   .ingredient-row {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
   }
   .ingredient-row .del-btn {
-    grid-column: span 2;
+    grid-column: span 2 !important;
+  }
+}
+
+/* Small Mobile Screens <= 640px */
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .stat-card {
+    padding: 0.75rem 0.85rem !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .stat-info p {
+    font-size: 0.72rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .stat-info h3 {
+    font-size: 1.15rem !important;
+  }
+
+  .stat-icon {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .stat-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .stat-card:nth-child(5) {
+    grid-column: span 2 !important;
+  }
+
+  .card {
+    padding: 0.85rem !important;
+    border-radius: var(--radius-md) !important;
+    margin-bottom: 0.85rem !important;
+  }
+
+  .card-header {
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 0.65rem !important;
+  }
+
+  .card-title {
+    font-size: 0.95rem !important;
+  }
+
+  .toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+  }
+
+  .search-box {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+
+  .modal-dialog {
+    max-width: 96vw !important;
+    margin: 0.4rem !important;
+    border-radius: var(--radius-lg) !important;
+  }
+
+  .modal-body {
+    padding: 1rem !important;
+  }
+
+  .custom-table th, .custom-table td {
+    padding: 0.6rem 0.65rem !important;
+    font-size: 0.8rem !important;
   }
 }
 
@@ -1290,6 +1554,7 @@ svg {
           <h1 id="app-brand-name">روز لمستحضرات التجميل</h1>
           <p id="app-brand-sub">نظام التصنيع والمبيعات والمخزون</p>
         </div>
+        <button id="sidebar-close-btn" class="sidebar-close-btn" aria-label="إغلاق القائمة">✕</button>
       </div>
 
       <nav class="nav-menu">
@@ -2565,6 +2830,48 @@ svg {
     </div>
   </div>
 
+  
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <button class="bottom-nav-item active" data-tab="dashboard">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      <span>الرئيسية</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="pos">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="9" cy="21" r="1"></circle>
+        <circle cx="20" cy="21" r="1"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg>
+      <span>الكاشير</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="materials">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+      </svg>
+      <span>الخامات</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="products">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+      </svg>
+      <span>المنتجات</span>
+    </button>
+    <button id="bottom-nav-menu-btn" class="bottom-nav-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      <span>القائمة</span>
+    </button>
+  </nav>
+
   <!-- Print Container (Thermal & A4) -->
   <div id="print-area"></div>
 
@@ -2572,13 +2879,13 @@ svg {
   <div id="toast-container"></div>
 
   <!-- Scripts -->
-  <script src="js/db.js?v=2.1"></script>
-  <script src="js/materials.js?v=2.1"></script>
-  <script src="js/products.js?v=2.1"></script>
-  <script src="js/pos.js?v=2.1"></script>
-  <script src="js/invoices.js?v=2.1"></script>
-  <script src="js/inventory.js?v=2.1"></script>
-  <script src="js/settings.js?v=2.1"></script>
-  <script src="js/app.js?v=2.1"></script>
+  <script src="js/db.js?v=2.3"></script>
+  <script src="js/materials.js?v=2.3"></script>
+  <script src="js/products.js?v=2.3"></script>
+  <script src="js/pos.js?v=2.3"></script>
+  <script src="js/invoices.js?v=2.3"></script>
+  <script src="js/inventory.js?v=2.3"></script>
+  <script src="js/settings.js?v=2.3"></script>
+  <script src="js/app.js?v=2.3"></script>
 </body>
 </html>
