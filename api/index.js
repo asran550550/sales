@@ -4,6 +4,7 @@
  * Connects to Turso cloud SQLite via @libsql/client.
  */
 
+require('dotenv').config();
 const { createClient } = require('@libsql/client');
 
 // Initialize Turso Client
