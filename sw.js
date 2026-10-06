@@ -1,26 +1,28 @@
-const CACHE_NAME = 'rose-cosmetics-v1';
+const CACHE_NAME = 'rose-cosmetics-v2.1';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css',
-  './js/db.js',
-  './js/materials.js',
-  './js/products.js',
-  './js/pos.js',
-  './js/invoices.js',
-  './js/inventory.js',
-  './js/settings.js',
-  './js/app.js',
+  './css/style.css?v=2.1',
+  './js/db.js?v=2.1',
+  './js/materials.js?v=2.1',
+  './js/products.js?v=2.1',
+  './js/pos.js?v=2.1',
+  './js/invoices.js?v=2.1',
+  './js/inventory.js?v=2.1',
+  './js/settings.js?v=2.1',
+  './js/app.js?v=2.1',
   './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      return cache.addAll(ASSETS).catch((err) => {
+        console.warn('Some assets could not be pre-cached:', err);
+      });
     })
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -29,21 +31,65 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('Purging obsolete cache:', key);
             return caches.delete(key);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Never cache backend API calls
+  if (url.pathname.startsWith('/api')) {
+    return;
+  }
+
+  // Network-First for stylesheets and scripts to prevent stale styling bugs
+  if (url.pathname.endsWith('.css') || url.pathname.endsWith('.js')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) {
+              const ct = cachedResponse.headers.get('content-type') || '';
+              // Guard against bad cached HTML masquerading as CSS/JS
+              if (ct.includes('text/html')) {
+                return new Response('/* Cached asset invalid */', {
+                  headers: { 'Content-Type': url.pathname.endsWith('.css') ? 'text/css' : 'application/javascript' }
+                });
+              }
+              return cachedResponse;
+            }
+            return new Response('/* Offline asset unavailable */', { status: 503 });
+          });
+        })
+    );
+    return;
+  }
+
+  // Cache-First for other assets (HTML, images, fonts)
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      return response || fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
+        return networkResponse;
+      });
     }).catch(() => {
-      return caches.match('./index.html');
+      return caches.match('./index.html') || caches.match('/');
     })
   );
 });

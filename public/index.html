@@ -12,7 +12,45 @@
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c98860">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=2.1">
+  <style>
+    /* Critical foundational styling to prevent FOUC / oversized icons before stylesheet loads */
+    * { box-sizing: border-box; }
+    body { font-family: 'Cairo', 'Tajawal', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; direction: rtl; text-align: right; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 0; overflow-x: hidden; }
+    svg { max-width: 100%; max-height: 100%; vertical-align: middle; flex-shrink: 0; }
+    .brand-icon svg { width: 24px; height: 24px; }
+    .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .btn svg { width: 18px; height: 18px; }
+    .stat-icon svg { width: 24px; height: 24px; }
+    .card-title svg { width: 20px; height: 20px; }
+    .sidebar { width: 260px; position: fixed; top: 0; bottom: 0; right: 0; z-index: 100; }
+    .main-wrapper { margin-right: 260px; width: calc(100% - 260px); min-height: 100vh; }
+    @media (max-width: 860px) {
+      .sidebar { width: 270px; transform: translateX(100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-right: 0; width: 100%; }
+    }
+  </style>
+  <script>
+    // Automatic Service Worker Self-Healing: Purge stale v1 caches if detected
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => {
+          reg.update().catch(() => {});
+        });
+      });
+      if ('caches' in window) {
+        caches.keys().then(keys => {
+          keys.forEach(k => {
+            if (k === 'rose-cosmetics-v1') {
+              caches.delete(k);
+              console.log('Purged stale v1 cache:', k);
+            }
+          });
+        });
+      }
+    }
+  </script>
 </head>
 <body>
 
@@ -238,7 +276,7 @@
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.25rem;">
+          <div class="dashboard-main-grid">
             <!-- Recent Invoices List -->
             <div class="card">
               <div class="card-header">
@@ -1316,13 +1354,13 @@
   <div id="toast-container"></div>
 
   <!-- Scripts -->
-  <script src="js/db.js"></script>
-  <script src="js/materials.js"></script>
-  <script src="js/products.js"></script>
-  <script src="js/pos.js"></script>
-  <script src="js/invoices.js"></script>
-  <script src="js/inventory.js"></script>
-  <script src="js/settings.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/db.js?v=2.1"></script>
+  <script src="js/materials.js?v=2.1"></script>
+  <script src="js/products.js?v=2.1"></script>
+  <script src="js/pos.js?v=2.1"></script>
+  <script src="js/invoices.js?v=2.1"></script>
+  <script src="js/inventory.js?v=2.1"></script>
+  <script src="js/settings.js?v=2.1"></script>
+  <script src="js/app.js?v=2.1"></script>
 </body>
 </html>
