@@ -329,10 +329,11 @@ module.exports = async (req, res) => {
 
   // Parse Path
   // e.g. /api/materials, /api/materials/1, /api/products, etc.
-  const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const rawPath = req.headers['x-matched-path'] || req.headers['x-vercel-matched-path'] || req.url || '';
+  const urlObj = new URL(rawPath.startsWith('http') ? rawPath : `http://${req.headers.host || 'localhost'}${rawPath.startsWith('/') ? rawPath : '/' + rawPath}`);
   let pathname = urlObj.pathname.replace(/^\/api/, '');
   if (!pathname.startsWith('/')) pathname = '/' + pathname;
-  const parts = pathname.split('/').filter(Boolean);
+  const parts = pathname.split('/').filter(p => Boolean(p) && p !== 'index.js');
   const resource = parts[0];
   const idOrSub = parts[1];
   const subAction = parts[2];
