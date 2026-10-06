@@ -27,12 +27,23 @@ app.use('/api', async (req, res) => {
   }
 });
 
-// Serve static frontend assets
+// Serve static frontend assets from public/ and root
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
-// SPA fallback for HTML5 routing (Express 5 compatible middleware fallback)
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+// SPA fallback for HTML5 routing - never return index.html for static file extensions
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  if (/\.[a-zA-Z0-9]+$/.test(req.path)) {
+    return res.status(404).send('Not found: ' + req.path);
+  }
+  const publicIndex = path.join(__dirname, 'public', 'index.html');
+  const rootIndex = path.join(__dirname, 'index.html');
+  const fs = require('fs');
+  if (fs.existsSync(publicIndex)) {
+    return res.sendFile(publicIndex);
+  }
+  res.sendFile(rootIndex);
 });
 
 // Export app for Vercel Serverless Function compatibility
