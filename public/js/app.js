@@ -11,6 +11,9 @@ const App = {
     this.bindModals();
     this.bindMobileDrawer();
 
+    // Ensure database connection is ready before initializing modules
+    await db._ensureDb();
+
     // Initialize modules
     await MaterialsManager.init();
     await ProductsManager.init();
@@ -113,6 +116,9 @@ const App = {
     if (tabId === 'dashboard') this.updateDashboard();
     if (tabId === 'inventory') InventoryManager.render();
     if (tabId === 'pos') POS.refreshCatalog();
+    if (tabId === 'materials') MaterialsManager.render();
+    if (tabId === 'products') ProductsManager.render();
+    if (tabId === 'invoices') InvoicesManager.render();
   },
 
   bindMobileDrawer() {

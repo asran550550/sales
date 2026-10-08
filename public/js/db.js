@@ -16,9 +16,10 @@ class CosmeticsDB {
   }
 
   async _ensureDb() {
-    if (this.useApi) return true;
-    if (this.db) return this.db;
-    return this.readyPromise;
+    if (!this.isReady) {
+      await this.readyPromise;
+    }
+    return this.useApi ? true : this.db;
   }
 
   async init() {
@@ -147,6 +148,7 @@ class CosmeticsDB {
   // --- Generic Store Operations ---
 
   async getAll(storeName) {
+    await this._ensureDb();
     if (this.useApi) {
       try {
         const res = await fetch(`/api/${storeName}`);
@@ -155,7 +157,6 @@ class CosmeticsDB {
         console.error(`API getAll ${storeName} error:`, e);
       }
     }
-    await this._ensureDb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(storeName, 'readonly');
       const store = tx.objectStore(storeName);
@@ -166,11 +167,11 @@ class CosmeticsDB {
   }
 
   async getById(storeName, id) {
+    await this._ensureDb();
     if (this.useApi) {
       const all = await this.getAll(storeName);
       return all.find(i => Number(i.id) === Number(id));
     }
-    await this._ensureDb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(storeName, 'readonly');
       const store = tx.objectStore(storeName);
@@ -181,6 +182,7 @@ class CosmeticsDB {
   }
 
   async add(storeName, item) {
+    await this._ensureDb();
     if (this.useApi) {
       const res = await fetch(`/api/${storeName}`, {
         method: 'POST',
@@ -189,7 +191,6 @@ class CosmeticsDB {
       });
       return await res.json();
     }
-    await this._ensureDb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
@@ -200,6 +201,7 @@ class CosmeticsDB {
   }
 
   async update(storeName, item) {
+    await this._ensureDb();
     if (this.useApi) {
       const res = await fetch(`/api/${storeName}/${item.id}`, {
         method: 'PUT',
@@ -208,7 +210,6 @@ class CosmeticsDB {
       });
       return await res.json();
     }
-    await this._ensureDb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
@@ -219,11 +220,11 @@ class CosmeticsDB {
   }
 
   async delete(storeName, id) {
+    await this._ensureDb();
     if (this.useApi) {
       const res = await fetch(`/api/${storeName}/${id}`, { method: 'DELETE' });
       return await res.json();
     }
-    await this._ensureDb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
@@ -234,11 +235,11 @@ class CosmeticsDB {
   }
 
   async count(storeName) {
+    await this._ensureDb();
     if (this.useApi) {
       const all = await this.getAll(storeName);
       return all.length;
     }
-    await this._ensureDb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(storeName, 'readonly');
       const store = tx.objectStore(storeName);
@@ -263,6 +264,7 @@ class CosmeticsDB {
   // --- Settings ---
 
   async getSetting(key) {
+    await this._ensureDb();
     if (this.useApi) {
       try {
         const res = await fetch(`/api/settings/${key}`);
@@ -272,7 +274,6 @@ class CosmeticsDB {
         console.error(`API getSetting ${key} error:`, e);
       }
     }
-    await this._ensureDb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction('settings', 'readonly');
       const store = tx.objectStore('settings');
@@ -283,6 +284,7 @@ class CosmeticsDB {
   }
 
   async setSetting(key, value) {
+    await this._ensureDb();
     if (this.useApi) {
       await fetch(`/api/settings/${key}`, {
         method: 'POST',
@@ -291,7 +293,6 @@ class CosmeticsDB {
       });
       return true;
     }
-    await this._ensureDb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction('settings', 'readwrite');
       const store = tx.objectStore('settings');
@@ -309,6 +310,7 @@ class CosmeticsDB {
    * Logs the production batch with ingredients and total cost.
    */
   async produceBatch(productId, unitsToProduce, notes = '') {
+    await this._ensureDb();
     if (this.useApi) {
       const res = await fetch('/api/production/produce', {
         method: 'POST',
@@ -400,6 +402,7 @@ class CosmeticsDB {
    * Saves invoice.
    */
   async createInvoice(invoiceData) {
+    await this._ensureDb();
     if (this.useApi) {
       const res = await fetch('/api/invoices', {
         method: 'POST',
@@ -412,7 +415,6 @@ class CosmeticsDB {
       }
       return await res.json();
     }
-    await this._ensureDb();
     const { items, customerName, customerPhone, paymentMethod, discount = 0, taxAmount = 0, notes = '' } = invoiceData;
 
     if (!items || items.length === 0) {

@@ -1018,12 +1018,22 @@ svg {
   width: 100%;
   max-width: 650px;
   max-height: 90vh;
+  max-height: 90dvh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   transform: scale(0.95);
   transition: transform 0.2s ease;
   overflow: hidden;
+}
+
+.modal-dialog form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  height: 100%;
 }
 
 .modal-backdrop.open .modal-dialog {
@@ -1041,6 +1051,7 @@ svg {
   align-items: center;
   justify-content: space-between;
   background: #fafaf9;
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -1061,7 +1072,10 @@ svg {
 .modal-body {
   padding: 1.4rem;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   flex: 1;
+  min-height: 0;
 }
 
 .modal-footer {
@@ -1071,6 +1085,7 @@ svg {
   justify-content: flex-end;
   gap: 0.75rem;
   background: #f8fafc;
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -1480,14 +1495,68 @@ svg {
     gap: 0.65rem !important;
   }
 
+  .modal-backdrop {
+    padding: 0.35rem !important;
+    align-items: center !important;
+  }
+
   .modal-dialog {
-    max-width: 96vw !important;
-    margin: 0.4rem !important;
+    max-width: 98vw !important;
+    width: 100% !important;
+    max-height: calc(100dvh - 0.7rem) !important;
+    height: calc(100dvh - 0.7rem) !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
     border-radius: var(--radius-lg) !important;
   }
 
+  .modal-dialog form {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    height: 100% !important;
+  }
+
+  .modal-header {
+    padding: 0.75rem 1rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .modal-header h3 {
+    font-size: 0.95rem !important;
+  }
+
   .modal-body {
-    padding: 1rem !important;
+    padding: 0.85rem !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+  }
+
+  .modal-footer {
+    padding: 0.65rem 0.85rem !important;
+    flex-shrink: 0 !important;
+    background: #ffffff !important;
+    border-top: 1px solid var(--border) !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05) !important;
+    display: flex !important;
+    gap: 0.5rem !important;
+  }
+
+  .modal-footer .btn {
+    flex: 1 !important;
+    padding: 0.65rem 0.75rem !important;
+    font-size: 0.9rem !important;
+    justify-content: center !important;
+  }
+
+  .ingredient-header-row {
+    display: none !important;
   }
 
   .custom-table th, .custom-table td {
