@@ -11,6 +11,10 @@ const App = {
     this.bindModals();
     this.bindMobileDrawer();
 
+    // Remove obsolete seed demo button if present in stale cache
+    const staleSeedBtn = document.getElementById('btn-topbar-seed');
+    if (staleSeedBtn) staleSeedBtn.remove();
+
     // Ensure database connection is ready before initializing modules
     await db._ensureDb();
 
@@ -391,10 +395,12 @@ const App = {
   }
 };
 
-// Register Service Worker for mobile offline PWA
+// Register Service Worker for mobile offline PWA with proactive update check
 if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=2.5').then((reg) => {
+      reg.update().catch(() => {});
+    }).catch(() => {});
   });
 }
 

@@ -354,6 +354,10 @@ svg {
   gap: 0.75rem;
 }
 
+#btn-topbar-seed {
+  display: none !important;
+}
+
 /* Content View Body */
 .content-area {
   padding: 1.5rem;
