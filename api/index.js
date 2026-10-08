@@ -7,18 +7,27 @@
 require('dotenv').config();
 const { createClient } = require('@libsql/client');
 
-// Initialize Turso Client
-const url = process.env.TURSO_DATABASE_URL || 'file:local.db';
+// Initialize Turso Client only if TURSO_DATABASE_URL is provided
+const url = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
-const client = createClient({
-  url,
-  authToken: authToken || undefined
-});
+let client = null;
+if (url && (url.startsWith('libsql://') || url.startsWith('https://'))) {
+  try {
+    client = createClient({
+      url,
+      authToken: authToken || undefined
+    });
+  } catch (err) {
+    console.warn('Could not initialize Turso client, falling back to local mode:', err.message);
+    client = null;
+  }
+}
 
 let tablesInitialized = false;
 
 async function ensureTables() {
+  if (!client) return;
   if (tablesInitialized) return;
 
   await client.execute(`
@@ -318,6 +327,16 @@ module.exports = async (req, res) => {
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // If no Turso client configured, tell frontend to use local IndexedDB storage
+  if (!client) {
+    return res.status(200).json({
+      online: false,
+      mode: 'local',
+      database: 'IndexedDB (Local Device Storage)',
+      message: 'Running in standalone local storage mode on user device.'
+    });
   }
 
   try {
