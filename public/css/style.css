@@ -1315,13 +1315,7 @@ svg {
     display: none !important;
   }
 
-  #btn-topbar-seed {
-    padding: 0.45rem 0.6rem !important;
-  }
 
-  #btn-topbar-seed span {
-    display: none !important;
-  }
 
   #btn-quick-pos {
     padding: 0.45rem 0.75rem !important;
