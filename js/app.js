@@ -392,6 +392,36 @@ const App = {
       if (imgElem) imgElem.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(fullUrl)}`;
     }
     this.openModal('modal-mobile-guide');
+  },
+
+  openDeveloperModal() {
+    this.openModal('modal-developer');
+  },
+
+  copyToClipboard(text, successMsg) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        this.toast(successMsg || 'تم النسخ بنجاح!', 'success');
+      }).catch(() => {
+        this.fallbackCopyText(text, successMsg);
+      });
+    } else {
+      this.fallbackCopyText(text, successMsg);
+    }
+  },
+
+  fallbackCopyText(text, successMsg) {
+    const input = document.createElement('input');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    try {
+      document.execCommand('copy');
+      this.toast(successMsg || 'تم النسخ بنجاح!', 'success');
+    } catch (e) {
+      this.toast('يرجى النسخ يدوياً: ' + text, 'info');
+    }
+    document.body.removeChild(input);
   }
 };
 
