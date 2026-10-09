@@ -428,7 +428,7 @@ const App = {
 // Register Service Worker for mobile offline PWA with proactive update check
 if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=2.5').then((reg) => {
+    navigator.serviceWorker.register('./sw.js?v=2.6').then((reg) => {
       reg.update().catch(() => {});
     }).catch(() => {});
   });

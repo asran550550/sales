@@ -12,7 +12,7 @@
   
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#c98860">
-  <link rel="stylesheet" href="css/style.css?v=2.5">
+  <link rel="stylesheet" href="css/style.css?v=2.6">
   <style>
 /* ==========================================================================
    RoseCosmetics - Luxury Cosmetic Manufacturing & Sales System
@@ -1689,14 +1689,24 @@ svg {
           </svg>
           <span>الإعدادات والنسخ الاحتياطي</span>
         </a>
+
+        <!-- Developer Contact Button -->
+        <a class="nav-item" id="nav-btn-developer" onclick="App.openDeveloperModal()" style="cursor:pointer; margin-top:0.4rem; background:rgba(201,136,96,0.12); border:1px solid rgba(201,136,96,0.3); border-radius:var(--radius-md);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e4b896" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span style="color:#f7ebe1; font-weight:600;">تواصل مع المطور</span>
+          <span class="badge" style="margin-right:auto; font-size:0.65rem; background:var(--primary); color:#fff;">دعم فني</span>
+        </a>
       </nav>
 
-      <div class="sidebar-footer">
+      <div class="sidebar-footer" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="App.openDeveloperModal()" title="انقر للتواصل مع المطور م/ محمود عسران">
         <div class="status-indicator">
           <span class="status-dot"></span>
-          <span>يعمل بدون إنترنت (محلي)</span>
+          <span style="font-size:0.75rem; color:#cbd5e1;">تطوير: <strong style="color:#f7ebe1;">م/ محمود عسران</strong></span>
         </div>
-        <span style="font-size:0.7rem; color:#64748b;">v1.0</span>
+        <span style="font-size:0.68rem; color:#cbd5e1; background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px;">اتصال 💬</span>
       </div>
     </aside>
 
@@ -1720,6 +1730,10 @@ svg {
         </div>
 
         <div class="topbar-actions">
+          <button id="btn-topbar-developer" class="btn btn-secondary btn-sm" onclick="App.openDeveloperModal()" title="تواصل مع مطور البرنامج م/ محمود عسران">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>👨‍💻 م/ محمود عسران</span>
+          </button>
           <button id="btn-topbar-mobile" class="btn btn-secondary btn-sm" onclick="App.openMobileModal()" title="تشغيل البرنامج على الموبايل عبر الواي فاي أو السيرفر السحابي">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
             <span>📱 تشغيل من الموبايل</span>
@@ -2303,6 +2317,60 @@ svg {
                 <button id="btn-reset-demo-data" class="btn btn-sm btn-danger" style="margin-top:1rem;">
                   إعادة ضبط المصنع وشحن البيانات التجريبية
                 </button>
+              </div>
+            </div>
+
+            <!-- Developer Contact & Support Card -->
+            <div class="card" style="grid-column: span 2; background: linear-gradient(135deg, #ffffff 0%, #fdfbf9 100%); border: 1px solid #ebd9cc; box-shadow: var(--shadow-md); margin-top: 0.5rem;">
+              <div class="card-header" style="border-bottom: 1px solid #f1e2d7; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                <h3 class="card-title" style="color:var(--primary-dark); display:flex; align-items:center; gap:0.5rem;">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  بطاقة المطور والدعم الفني والخدمات البرمجية
+                </h3>
+                <span class="badge" style="background:var(--primary-light); color:var(--primary-dark); font-weight:700;">دعم فني وتطوير مخصص</span>
+              </div>
+
+              <div style="display:flex; flex-wrap:wrap; gap:1.5rem; align-items:center; padding-top:0.5rem;">
+                <!-- Avatar / Info -->
+                <div style="display:flex; align-items:center; gap:1rem; flex:1; min-width:280px;">
+                  <div style="width:64px; height:64px; border-radius:50%; background:var(--primary-gradient); display:flex; align-items:center; justify-content:center; color:white; font-size:1.4rem; font-weight:800; box-shadow:var(--shadow-glow); flex-shrink:0;">
+                    MA
+                  </div>
+                  <div>
+                    <h4 style="font-size:1.15rem; font-weight:800; color:var(--text-primary); margin-bottom:2px;">م/ محمود عسران (Mahmoud Asran)</h4>
+                    <p style="font-size:0.85rem; color:var(--primary-dark); font-weight:600; margin-bottom:4px;">مهندس ومطور برمجيات | Software Engineer</p>
+                    <p style="font-size:0.8rem; color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                      القاهرة، مصر (Cairo, Egypt)
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Direct Contact Action Buttons -->
+                <div style="display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center;">
+                  <!-- WhatsApp -->
+                  <a href="https://wa.me/201005430209?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A8%D8%B4%D9%85%D9%87%D9%86%D8%AF%D8%B3%20%D9%85%D8%AD%D9%85%D9%88%D8%AF%D8%8C%20%D8%A3%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D9%85%D8%B9%D9%83%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20%D8%B1%D9%88%D8%B2%20%D9%84%D9%85%D8%B3%D8%AA%D8%AD%D8%B6%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AA%D8%AC%D9%85%D9%8A%D9%84" target="_blank" class="btn" style="background:#25D366; color:white; border:none; display:inline-flex; align-items:center; gap:0.4rem; padding:0.6rem 1rem; border-radius:var(--radius-md); font-weight:700; text-decoration:none;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    <span>واتساب: 01005430209</span>
+                  </a>
+
+                  <!-- Phone Call -->
+                  <a href="tel:01005430209" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:0.4rem; text-decoration:none;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    <span>اتصال هاتفي</span>
+                  </a>
+
+                  <!-- Email -->
+                  <a href="mailto:mahmoudasran104@gmail.com" class="btn btn-secondary" style="display:inline-flex; align-items:center; gap:0.4rem; text-decoration:none;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <span>إيميل</span>
+                  </a>
+
+                  <!-- Full Details Modal -->
+                  <button type="button" class="btn btn-accent" onclick="App.openDeveloperModal()">
+                    عرض التفاصيل والروابط
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -2893,7 +2961,138 @@ svg {
     </div>
   </div>
 
-  
+  <!-- Modal: Contact Developer (م/ محمود عسران) -->
+  <div id="modal-developer" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 620px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #171b26 0%, #2b3145 100%); color: white; border-bottom: none;">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div style="width:38px; height:38px; border-radius:50%; background:var(--primary-gradient); display:flex; align-items:center; justify-content:center; color:white; font-size:1.1rem; font-weight:800; box-shadow:0 0 12px rgba(201,136,96,0.5);">
+            MA
+          </div>
+          <div>
+            <h3 style="color:#ffffff; font-size:1.1rem; margin:0;">تواصل مع مطور النظام</h3>
+            <p style="color:#cbd5e1; font-size:0.75rem; margin:0;">الدعم الفني، التحديثات، والتطوير المخصص</p>
+          </div>
+        </div>
+        <button class="modal-close" style="color:#cbd5e1;" data-modal-close>&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:1.4rem;">
+        
+        <!-- Profile Banner -->
+        <div style="text-align:center; padding:1.25rem 1rem; background: linear-gradient(135deg, #fdfbf9 0%, #f6eee7 100%); border-radius:var(--radius-lg); border:1px solid #ebd9cc; margin-bottom:1.25rem;">
+          <div style="width:72px; height:72px; border-radius:50%; background:var(--primary-gradient); color:white; display:flex; align-items:center; justify-content:center; font-size:1.75rem; font-weight:800; margin:0 auto 0.75rem auto; box-shadow:var(--shadow-glow); border:3px solid white;">
+            MA
+          </div>
+          <h2 style="font-size:1.35rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;">م/ محمود عسران</h2>
+          <p style="font-size:0.9rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.4rem;">مهندس ومطور برمجيات | Software Engineer</p>
+          <div style="display:inline-flex; align-items:center; gap:0.4rem; background:white; padding:4px 12px; border-radius:999px; border:1px solid var(--border); font-size:0.8rem; color:var(--text-secondary);">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>القاهرة، مصر (Cairo, Egypt)</span>
+          </div>
+        </div>
+
+        <!-- Contact Channels List -->
+        <div style="display:flex; flex-direction:column; gap:0.85rem; margin-bottom:1.25rem;">
+          
+          <!-- WhatsApp Card -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:0.85rem 1rem; background:#ffffff; border:1.5px solid #25D366; border-radius:var(--radius-md); box-shadow:var(--shadow-sm); gap:0.75rem; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div style="width:42px; height:42px; border-radius:50%; background:#e8f9ef; color:#25D366; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+              </div>
+              <div>
+                <div style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">واتساب (WhatsApp)</div>
+                <div style="font-size:0.85rem; color:#25D366; font-weight:700; direction:ltr; text-align:right;">01005430209</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.4rem; align-items:center; margin-right:auto;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyToClipboard('01005430209', 'تم نسخ رقم الهاتف!')" title="نسخ الرقم">
+                نسخ 📋
+              </button>
+              <a href="https://wa.me/201005430209?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A8%D8%B4%D9%85%D9%87%D9%86%D8%AF%D8%B3%20%D9%85%D8%AD%D9%85%D9%88%D8%AF%D8%8C%20%D8%A3%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D9%85%D8%B9%D9%83%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20%D8%B1%D9%88%D8%B2%20%D9%84%D9%85%D8%B3%D8%AA%D8%AD%D8%B6%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AA%D8%AC%D9%85%D9%8A%D9%84" target="_blank" class="btn btn-sm" style="background:#25D366; color:white; font-weight:700; text-decoration:none;">
+                محادثة فورية 💬
+              </a>
+            </div>
+          </div>
+
+          <!-- Phone Call Card -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:0.85rem 1rem; background:#ffffff; border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); gap:0.75rem; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div style="width:42px; height:42px; border-radius:50%; background:var(--primary-light); color:var(--primary-dark); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              </div>
+              <div>
+                <div style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">الاتصال الهاتفي</div>
+                <div style="font-size:0.85rem; color:var(--text-secondary); font-weight:700; direction:ltr; text-align:right;">01005430209</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.4rem; align-items:center; margin-right:auto;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyToClipboard('01005430209', 'تم نسخ رقم الهاتف!')" title="نسخ الرقم">
+                نسخ 📋
+              </button>
+              <a href="tel:01005430209" class="btn btn-primary btn-sm" style="text-decoration:none;">
+                اتصال 📞
+              </a>
+            </div>
+          </div>
+
+          <!-- Email Card -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:0.85rem 1rem; background:#ffffff; border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); gap:0.75rem; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div style="width:42px; height:42px; border-radius:50%; background:#eff6ff; color:#3b82f6; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              </div>
+              <div>
+                <div style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">البريد الإلكتروني (Email)</div>
+                <div style="font-size:0.82rem; color:var(--text-secondary); direction:ltr; text-align:right;">mahmoudasran104@gmail.com</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.4rem; align-items:center; margin-right:auto;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="App.copyToClipboard('mahmoudasran104@gmail.com', 'تم نسخ البريد الإلكتروني!')" title="نسخ البريد">
+                نسخ 📋
+              </button>
+              <a href="mailto:mahmoudasran104@gmail.com?subject=%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20%D8%B1%D9%88%D8%B2%20%D9%84%D9%85%D8%B3%D8%AA%D8%AD%D8%B6%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AA%D8%AC%D9%85%D9%8A%D9%84" class="btn btn-accent btn-sm" style="text-decoration:none;">
+                إرسال ✉️
+              </a>
+            </div>
+          </div>
+
+          <!-- GitHub Card -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:0.85rem 1rem; background:#ffffff; border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); gap:0.75rem; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <div style="width:42px; height:42px; border-radius:50%; background:#f1f5f9; color:#0f172a; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+              </div>
+              <div>
+                <div style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">حساب GitHub</div>
+                <div style="font-size:0.82rem; color:var(--text-secondary); direction:ltr; text-align:right;">asran550550</div>
+              </div>
+            </div>
+            <a href="https://github.com/asran550550" target="_blank" class="btn btn-secondary btn-sm" style="margin-right:auto; text-decoration:none;">
+              زيارة المستودع ↗
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Support Scope Note -->
+        <div style="background:#f8fafc; border:1px dashed var(--border); border-radius:var(--radius-md); padding:0.85rem 1rem; font-size:0.82rem; color:var(--text-secondary); line-height:1.6;">
+          ✨ <strong>الخدمات المتاحة:</strong>
+          تطوير وإضافة تقارير جديدة مخصصة، ربط البرنامج بشبكة محلية أو سيرفر سحابي متعدد الفروع، تخصيص فواتير الباركود، والدعم الفني المستمر.
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <a href="https://wa.me/201005430209?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A8%D8%B4%D9%85%D9%87%D9%86%D8%AF%D8%B3%20%D9%85%D8%AD%D9%85%D9%88%D8%AF%D8%8C%20%D8%A3%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D9%85%D8%B9%D9%83%20%D8%A8%D8%AE%D8%B5%D9%88%D8%B5%20%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC%20%D8%B1%D9%88%D8%B2" target="_blank" class="btn" style="background:#25D366; color:white; font-weight:700; text-decoration:none; flex:1; justify-content:center;">
+          💬 فتح محادثة واتساب الآن
+        </a>
+        <button type="button" class="btn btn-secondary" data-modal-close>إغلاق</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Mobile Bottom Navigation Bar -->
   <nav class="bottom-nav">
     <button class="bottom-nav-item active" data-tab="dashboard">
@@ -2942,13 +3141,13 @@ svg {
   <div id="toast-container"></div>
 
   <!-- Scripts -->
-  <script src="js/db.js?v=2.5"></script>
-  <script src="js/materials.js?v=2.5"></script>
-  <script src="js/products.js?v=2.5"></script>
-  <script src="js/pos.js?v=2.5"></script>
-  <script src="js/invoices.js?v=2.5"></script>
-  <script src="js/inventory.js?v=2.5"></script>
-  <script src="js/settings.js?v=2.5"></script>
-  <script src="js/app.js?v=2.5"></script>
+  <script src="js/db.js?v=2.6"></script>
+  <script src="js/materials.js?v=2.6"></script>
+  <script src="js/products.js?v=2.6"></script>
+  <script src="js/pos.js?v=2.6"></script>
+  <script src="js/invoices.js?v=2.6"></script>
+  <script src="js/inventory.js?v=2.6"></script>
+  <script src="js/settings.js?v=2.6"></script>
+  <script src="js/app.js?v=2.6"></script>
 </body>
 </html>

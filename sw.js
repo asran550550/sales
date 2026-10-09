@@ -1,16 +1,16 @@
-const CACHE_NAME = 'rose-cosmetics-v2.5';
+const CACHE_NAME = 'rose-cosmetics-v2.6';
 const ASSETS = [
   './',
   './index.html',
-  './css/style.css?v=2.5',
-  './js/db.js?v=2.5',
-  './js/materials.js?v=2.5',
-  './js/products.js?v=2.5',
-  './js/pos.js?v=2.5',
-  './js/invoices.js?v=2.5',
-  './js/inventory.js?v=2.5',
-  './js/settings.js?v=2.5',
-  './js/app.js?v=2.5',
+  './css/style.css?v=2.6',
+  './js/db.js?v=2.6',
+  './js/materials.js?v=2.6',
+  './js/products.js?v=2.6',
+  './js/pos.js?v=2.6',
+  './js/invoices.js?v=2.6',
+  './js/inventory.js?v=2.6',
+  './js/settings.js?v=2.6',
+  './js/app.js?v=2.6',
   './manifest.json'
 ];
 
