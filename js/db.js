@@ -542,30 +542,58 @@ class CosmeticsDB {
   // --- Backup & Restore ---
   async exportFullBackup() {
     await this._ensureDb();
+    if (this.useApi) {
+      try {
+        const res = await fetch('/api/backup/export');
+        if (res.ok) {
+          const apiBackup = await res.json();
+          if (apiBackup && apiBackup.data) return apiBackup;
+        }
+      } catch (e) {
+        console.warn('API backup export failed, falling back to local collections:', e);
+      }
+    }
+
     const [materials, products, production, invoices, settings] = await Promise.all([
-      this.getAll('materials'),
-      this.getAll('products'),
-      this.getAll('production'),
-      this.getAll('invoices'),
-      this.getAll('settings')
+      this.getAll('materials').catch(() => []),
+      this.getAll('products').catch(() => []),
+      this.getAll('production').catch(() => []),
+      this.getAll('invoices').catch(() => []),
+      this.getAll('settings').catch(() => [])
     ]);
+
+    const cleanMaterials = Array.isArray(materials) ? materials : [];
+    const cleanProducts = Array.isArray(products) ? products : [];
+    const cleanProduction = Array.isArray(production) ? production : [];
+    const cleanInvoices = Array.isArray(invoices) ? invoices : [];
+    
+    let cleanSettings = [];
+    if (Array.isArray(settings)) {
+      cleanSettings = settings.filter(s => s && s.key);
+    } else if (settings && typeof settings === 'object' && !settings.error) {
+      if (settings.key) {
+        cleanSettings = [settings];
+      } else {
+        cleanSettings = Object.entries(settings).map(([k, v]) => ({ key: k, value: v }));
+      }
+    }
 
     const backupData = {
       app: 'RoseCosmetics',
       version: 1,
       exportedAt: new Date().toISOString(),
       counts: {
-        materials: materials.length,
-        products: products.length,
-        production: production.length,
-        invoices: invoices.length
+        materials: cleanMaterials.length,
+        products: cleanProducts.length,
+        production: cleanProduction.length,
+        invoices: cleanInvoices.length
       },
       data: {
-        materials,
-        products,
-        production,
-        invoices,
-        settings
+        materials: cleanMaterials,
+        products: cleanProducts,
+        production: cleanProduction,
+        invoices: cleanInvoices,
+        settings: cleanSettings
       }
     };
 
@@ -574,34 +602,142 @@ class CosmeticsDB {
 
   async importFullBackup(backupObj) {
     await this._ensureDb();
-    if (!backupObj || !backupObj.data) {
-      throw new Error('ملف النسخة الاحتياطية غير صالح أو تالف');
+    if (!backupObj) {
+      throw new Error('ملف النسخة الاحتياطية فارغ أو غير صالح');
     }
 
-    const { materials = [], products = [], production = [], invoices = [], settings = [] } = backupObj.data;
+    // Extract data regardless of wrapper format (supports backupObj.data or root backupObj)
+    const rawData = backupObj.data || backupObj;
 
-    const tx = this.db.transaction(['materials', 'products', 'production', 'invoices', 'settings'], 'readwrite');
+    // 1. Normalize Materials
+    const materials = Array.isArray(rawData.materials) ? rawData.materials : [];
 
-    tx.objectStore('materials').clear();
-    tx.objectStore('products').clear();
-    tx.objectStore('production').clear();
-    tx.objectStore('invoices').clear();
-    tx.objectStore('settings').clear();
+    // 2. Normalize Products (auto-parse ingredients if stringified JSON from SQL)
+    const rawProducts = Array.isArray(rawData.products) ? rawData.products : [];
+    const products = rawProducts.map(p => {
+      const copy = { ...p };
+      if (typeof copy.ingredients === 'string') {
+        try { copy.ingredients = JSON.parse(copy.ingredients); } catch(e) {}
+      }
+      return copy;
+    });
 
-    for (const m of materials) tx.objectStore('materials').add(m);
-    for (const p of products) tx.objectStore('products').add(p);
-    for (const b of production) tx.objectStore('production').add(b);
-    for (const i of invoices) tx.objectStore('invoices').add(i);
-    for (const s of settings) tx.objectStore('settings').add(s);
+    // 3. Normalize Production Batches (auto-parse deductedMaterials)
+    const rawProduction = Array.isArray(rawData.production) ? rawData.production : [];
+    const production = rawProduction.map(b => {
+      const copy = { ...b };
+      if (typeof copy.deductedMaterials === 'string') {
+        try { copy.deductedMaterials = JSON.parse(copy.deductedMaterials); } catch(e) {}
+      }
+      return copy;
+    });
 
-    return new Promise((resolve, reject) => {
-      tx.oncomplete = () => resolve({
+    // 4. Normalize Invoices (auto-parse items if stringified JSON from SQL)
+    const rawInvoices = Array.isArray(rawData.invoices) ? rawData.invoices : [];
+    const invoices = rawInvoices.map(inv => {
+      const copy = { ...inv };
+      if (typeof copy.items === 'string') {
+        try { copy.items = JSON.parse(copy.items); } catch(e) {}
+      }
+      return copy;
+    });
+
+    // 5. Normalize Settings
+    let settings = [];
+    if (Array.isArray(rawData.settings)) {
+      settings = rawData.settings.filter(s => s && s.key);
+    } else if (rawData.settings && typeof rawData.settings === 'object' && !rawData.settings.error) {
+      if (rawData.settings.key) {
+        settings = [rawData.settings];
+      } else {
+        settings = Object.entries(rawData.settings).map(([k, v]) => ({ key: k, value: v }));
+      }
+    }
+
+    // Validate that the file actually contains any cosmetic system data
+    if (materials.length === 0 && products.length === 0 && invoices.length === 0) {
+      throw new Error('الملف لا يحتوي على سجلات مطابقة (مواد خام أو منتجات أو فواتير)');
+    }
+
+    // A. If running against Cloud / Remote Database (Turso API mode)
+    if (this.useApi) {
+      const res = await fetch('/api/backup/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          data: { materials, products, production, invoices, settings }
+        })
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'فشل استيراد النسخة الاحتياطية في السيرفر السحابي');
+      }
+      return {
         materials: materials.length,
         products: products.length,
         production: production.length,
         invoices: invoices.length
-      });
-      tx.onerror = () => reject(tx.error);
+      };
+    }
+
+    // B. If running in Local / Offline Storage mode (IndexedDB)
+    return new Promise((resolve, reject) => {
+      try {
+        const tx = this.db.transaction(['materials', 'products', 'production', 'invoices', 'settings'], 'readwrite');
+
+        tx.onabort = () => reject(tx.error || new Error('فشلت عملية حفظ النسخة في المتصفح'));
+        tx.onerror = () => reject(tx.error || new Error('خطأ في قاعدة بيانات المتصفح'));
+        tx.oncomplete = () => resolve({
+          materials: materials.length,
+          products: products.length,
+          production: production.length,
+          invoices: invoices.length
+        });
+
+        // Clear existing stores cleanly
+        tx.objectStore('materials').clear();
+        tx.objectStore('products').clear();
+        tx.objectStore('production').clear();
+        tx.objectStore('invoices').clear();
+        tx.objectStore('settings').clear();
+
+        const matStore = tx.objectStore('materials');
+        for (const m of materials) {
+          if (m && typeof m === 'object') {
+            matStore.put(m);
+          }
+        }
+
+        const prodStore = tx.objectStore('products');
+        for (const p of products) {
+          if (p && typeof p === 'object') {
+            prodStore.put(p);
+          }
+        }
+
+        const batchStore = tx.objectStore('production');
+        for (const b of production) {
+          if (b && typeof b === 'object') {
+            batchStore.put(b);
+          }
+        }
+
+        const invStore = tx.objectStore('invoices');
+        for (const i of invoices) {
+          if (i && typeof i === 'object') {
+            invStore.put(i);
+          }
+        }
+
+        const setStore = tx.objectStore('settings');
+        for (const s of settings) {
+          if (s && s.key) {
+            setStore.put(s);
+          }
+        }
+      } catch (err) {
+        reject(err);
+      }
     });
   }
 

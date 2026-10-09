@@ -450,9 +450,15 @@ module.exports = async (req, res) => {
     }
 
     // --- PRODUCTION BATCH ---
-    if (resource === 'production' && idOrSub === 'produce') {
-      const { productId, quantity, notes } = req.body;
-      const prodRes = await client.execute({ sql: "SELECT * FROM products WHERE id = ?", args: [Number(productId)] });
+    if (resource === 'production') {
+      if (req.method === 'GET') {
+        const result = await client.execute("SELECT * FROM production ORDER BY id DESC");
+        return res.json(result.rows.map(r => formatRow(r, ['deductedMaterials'])));
+      }
+
+      if (idOrSub === 'produce' && req.method === 'POST') {
+        const { productId, quantity, notes } = req.body;
+        const prodRes = await client.execute({ sql: "SELECT * FROM products WHERE id = ?", args: [Number(productId)] });
       if (prodRes.rows.length === 0) return res.status(404).json({ error: 'المنتج غير موجود' });
       const prod = formatRow(prodRes.rows[0], ['ingredients']);
 
@@ -493,6 +499,7 @@ module.exports = async (req, res) => {
       });
 
       return res.json({ success: true, unitsProduced: quantity });
+      }
     }
 
     // --- INVOICES ---
@@ -602,11 +609,22 @@ module.exports = async (req, res) => {
 
     // --- SETTINGS ---
     if (resource === 'settings') {
+      if (req.method === 'GET' && !idOrSub) {
+        const allSets = await client.execute("SELECT * FROM settings");
+        return res.json(allSets.rows.map(r => {
+          let val = null;
+          try { val = JSON.parse(r.value); } catch(e) { val = r.value; }
+          return { key: r.key, value: val };
+        }));
+      }
+
       const key = idOrSub || 'appConfig';
       if (req.method === 'GET') {
         const resSet = await client.execute({ sql: "SELECT * FROM settings WHERE key = ?", args: [key] });
         if (resSet.rows.length === 0) return res.json({ key, value: null });
-        return res.json({ key, value: JSON.parse(resSet.rows[0].value) });
+        let val = null;
+        try { val = JSON.parse(resSet.rows[0].value); } catch(e) { val = resSet.rows[0].value; }
+        return res.json({ key, value: val });
       }
 
       if (req.method === 'POST') {
@@ -646,7 +664,8 @@ module.exports = async (req, res) => {
 
       if (idOrSub === 'import' && req.method === 'POST') {
         const backup = req.body;
-        if (!backup || !backup.data) return res.status(400).json({ error: 'ملف غير صالح' });
+        const rawData = backup ? (backup.data || backup) : null;
+        if (!rawData) return res.status(400).json({ error: 'ملف غير صالح' });
 
         await client.execute("DELETE FROM materials");
         await client.execute("DELETE FROM products");
@@ -654,30 +673,55 @@ module.exports = async (req, res) => {
         await client.execute("DELETE FROM invoices");
         await client.execute("DELETE FROM settings");
 
-        const { materials = [], products = [], invoices = [], settings = [] } = backup.data;
+        const materials = Array.isArray(rawData.materials) ? rawData.materials : [];
+        const products = Array.isArray(rawData.products) ? rawData.products : [];
+        const production = Array.isArray(rawData.production) ? rawData.production : [];
+        const invoices = Array.isArray(rawData.invoices) ? rawData.invoices : [];
+        const settings = Array.isArray(rawData.settings) ? rawData.settings : (rawData.settings && typeof rawData.settings === 'object' && !rawData.settings.error ? Object.entries(rawData.settings).map(([k, v]) => ({ key: k, value: v })) : []);
 
         for (const m of materials) {
           await client.execute({
-            sql: `INSERT INTO materials (id, code, name, category, costPerGram, costPerKg, stockGrams, minStockGrams, supplier, notes, createdAt, updatedAt)
+            sql: `INSERT OR REPLACE INTO materials (id, code, name, category, costPerGram, costPerKg, stockGrams, minStockGrams, supplier, notes, createdAt, updatedAt)
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            args: [m.id, m.code, m.name, m.category, m.costPerGram, m.costPerKg, m.stockGrams, m.minStockGrams, m.supplier, m.notes, m.createdAt, m.updatedAt]
+            args: [m.id, m.code, m.name, m.category, m.costPerGram, m.costPerKg, m.stockGrams, m.minStockGrams, m.supplier, m.notes, m.createdAt || new Date().toISOString(), m.updatedAt || new Date().toISOString()]
           });
         }
 
         for (const p of products) {
+          const ingStr = typeof p.ingredients === 'string' ? p.ingredients : JSON.stringify(p.ingredients || []);
           await client.execute({
-            sql: `INSERT INTO products (id, code, name, category, netWeight, ingredients, rawMaterialsCost, packagingCost, laborCost, totalCost, profitType, profitMargin, sellingPrice, stockUnits, minStockUnits, notes, createdAt, updatedAt)
+            sql: `INSERT OR REPLACE INTO products (id, code, name, category, netWeight, ingredients, rawMaterialsCost, packagingCost, laborCost, totalCost, profitType, profitMargin, sellingPrice, stockUnits, minStockUnits, notes, createdAt, updatedAt)
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            args: [p.id, p.code, p.name, p.category, p.netWeight, JSON.stringify(p.ingredients || []), p.rawMaterialsCost, p.packagingCost, p.laborCost, p.totalCost, p.profitType, p.profitMargin, p.sellingPrice, p.stockUnits, p.minStockUnits, p.notes, p.createdAt, p.updatedAt]
+            args: [p.id, p.code, p.name, p.category, p.netWeight, ingStr, p.rawMaterialsCost, p.packagingCost, p.laborCost, p.totalCost, p.profitType, p.profitMargin, p.sellingPrice, p.stockUnits, p.minStockUnits, p.notes, p.createdAt || new Date().toISOString(), p.updatedAt || new Date().toISOString()]
+          });
+        }
+
+        for (const b of production) {
+          const matStr = typeof b.deductedMaterials === 'string' ? b.deductedMaterials : JSON.stringify(b.deductedMaterials || []);
+          await client.execute({
+            sql: `INSERT OR REPLACE INTO production (id, batchNumber, productId, productName, unitsProduced, unitCost, totalBatchCost, date, notes, deductedMaterials)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            args: [b.id, b.batchNumber, b.productId, b.productName, b.unitsProduced, b.unitCost, b.totalBatchCost, b.date || new Date().toISOString(), b.notes, matStr]
           });
         }
 
         for (const i of invoices) {
+          const itStr = typeof i.items === 'string' ? i.items : JSON.stringify(i.items || []);
           await client.execute({
-            sql: `INSERT INTO invoices (id, invoiceNumber, date, customerName, customerPhone, paymentMethod, items, subtotal, discount, taxAmount, total, totalCost, netProfit, status, notes)
+            sql: `INSERT OR REPLACE INTO invoices (id, invoiceNumber, date, customerName, customerPhone, paymentMethod, items, subtotal, discount, taxAmount, total, totalCost, netProfit, status, notes)
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            args: [i.id, i.invoiceNumber, i.date, i.customerName, i.customerPhone, i.paymentMethod, JSON.stringify(i.items || []), i.subtotal, i.discount, i.taxAmount, i.total, i.totalCost, i.netProfit, i.status, i.notes]
+            args: [i.id, i.invoiceNumber, i.date || new Date().toISOString(), i.customerName, i.customerPhone, i.paymentMethod, itStr, i.subtotal, i.discount, i.taxAmount, i.total, i.totalCost, i.netProfit, i.status, i.notes]
           });
+        }
+
+        for (const s of settings) {
+          if (s && s.key) {
+            const valStr = typeof s.value === 'string' ? s.value : JSON.stringify(s.value);
+            await client.execute({
+              sql: `INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)`,
+              args: [s.key, valStr]
+            });
+          }
         }
 
         return res.json({ success: true });

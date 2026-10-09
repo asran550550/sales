@@ -152,7 +152,7 @@ const SettingsManager = {
         }, 1200);
       } catch (err) {
         console.error(err);
-        App.toast('فشل استرجاع النسخة الاحتياطية (الملف تالف أو غير صالح)', 'error');
+        App.toast(`فشل استرجاع النسخة الاحتياطية: ${err.message || 'الملف تالف أو غير صالح'}`, 'error');
       }
     };
     reader.readAsText(file);
