@@ -49,6 +49,16 @@
   --sidebar-width: 260px;
 }
 
+html {
+  font-size: 14.5px;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
