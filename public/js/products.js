@@ -9,6 +9,9 @@ const ProductsManager = {
   currentFilter: '',
   currentCategory: 'all',
   cachedMaterials: [],
+  currentDerivedBaseProduct: null,
+  currentDerivedIngredients: [],
+  currentViewRecipeId: null,
 
   async init() {
     await this.refreshMaterialsList();
@@ -31,6 +34,26 @@ const ProductsManager = {
     const btnAddIng = document.getElementById('btn-add-ingredient-row');
     if (btnAddIng) {
       btnAddIng.addEventListener('click', () => this.addIngredientRow());
+    }
+
+    // Scale current formula button inside product modal
+    const btnScaleCurrent = document.getElementById('btn-scale-current-formula');
+    if (btnScaleCurrent) {
+      btnScaleCurrent.addEventListener('click', () => this.scaleCurrentFormula());
+    }
+
+    // Import formula from base product button inside product modal
+    const btnModalApplyImport = document.getElementById('btn-modal-apply-import');
+    if (btnModalApplyImport) {
+      btnModalApplyImport.addEventListener('click', () => {
+        const baseId = document.getElementById('modal-import-base-select').value;
+        const targetG = parseFloat(document.getElementById('modal-import-target-grams').value) || 100;
+        if (!baseId) {
+          App.toast('يرجى اختيار تركيبة أساسية أولاً', 'warning');
+          return;
+        }
+        this.applyImportedFormula(baseId, targetG);
+      });
     }
 
     // Dynamic cost calculator listeners
@@ -75,6 +98,80 @@ const ProductsManager = {
     const batchForm = document.getElementById('form-batch-produce');
     if (batchForm) {
       batchForm.addEventListener('submit', (e) => this.handleBatchProduce(e));
+    }
+
+    // --- Derive Size Modal Events ---
+    const deriveBaseSelect = document.getElementById('derive-base-prod-id');
+    if (deriveBaseSelect) {
+      deriveBaseSelect.addEventListener('change', () => this.recalculateDerivedProduct(true));
+    }
+
+    const deriveTargetWeight = document.getElementById('derive-target-weight');
+    if (deriveTargetWeight) {
+      deriveTargetWeight.addEventListener('input', () => {
+        const curW = parseFloat(deriveTargetWeight.value) || 0;
+        document.querySelectorAll('.quick-size-pill').forEach(pill => {
+          pill.classList.toggle('active', parseFloat(pill.dataset.weight) === curW);
+        });
+        this.recalculateDerivedProduct(false);
+      });
+    }
+
+    document.querySelectorAll('.quick-size-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const w = parseFloat(pill.dataset.weight);
+        if (deriveTargetWeight) {
+          deriveTargetWeight.value = w;
+        }
+        document.querySelectorAll('.quick-size-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        this.recalculateDerivedProduct(false);
+      });
+    });
+
+    ['derive-packaging-cost', 'derive-labor-cost', 'derive-profit-margin'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => this.recalculateDerivedProduct(false));
+    });
+    const deriveProfitType = document.getElementById('derive-profit-type');
+    if (deriveProfitType) {
+      deriveProfitType.addEventListener('change', () => this.recalculateDerivedProduct(false));
+    }
+
+    const deriveSellingPrice = document.getElementById('derive-selling-price');
+    if (deriveSellingPrice) {
+      deriveSellingPrice.addEventListener('input', () => {
+        const totalCost = parseFloat(document.getElementById('derive-calc-total-cost').dataset.val) || 0;
+        const enteredPrice = parseFloat(deriveSellingPrice.value) || 0;
+        if (totalCost > 0 && enteredPrice >= totalCost) {
+          const profit = enteredPrice - totalCost;
+          const pType = deriveProfitType ? deriveProfitType.value : 'percent';
+          const marginInput = document.getElementById('derive-profit-margin');
+          if (marginInput) {
+            if (pType === 'percent') {
+              marginInput.value = Math.round((profit / totalCost) * 100);
+            } else {
+              marginInput.value = profit.toFixed(2);
+            }
+          }
+          const badge = document.getElementById('derive-profit-badge');
+          if (badge) badge.textContent = `صافي الربح المتوقع للعبوة: +${profit.toFixed(2)} ج.م`;
+        }
+      });
+    }
+
+    const deriveInstantProduce = document.getElementById('derive-instant-produce');
+    const deriveProduceDetails = document.getElementById('derive-produce-details');
+    if (deriveInstantProduce && deriveProduceDetails) {
+      deriveInstantProduce.addEventListener('change', () => {
+        deriveProduceDetails.style.display = deriveInstantProduce.checked ? 'block' : 'none';
+        this.checkDerivedBatchSufficiency();
+      });
+    }
+
+    const deriveProduceQty = document.getElementById('derive-produce-quantity');
+    if (deriveProduceQty) {
+      deriveProduceQty.addEventListener('input', () => this.checkDerivedBatchSufficiency());
     }
 
     // Search & Filter
@@ -167,6 +264,10 @@ const ProductsManager = {
           </td>
           <td>
             <div style="display:flex; gap: 0.35rem; align-items:center;">
+              <button class="btn btn-sm btn-scale" onclick="ProductsManager.openDeriveSizeModal(${p.id})" title="تطبيق معادلة التركيبة على حجم جديد (100 جم، 50 جم...)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg>
+                توليد حجم
+              </button>
               <button class="btn btn-sm btn-accent" onclick="ProductsManager.openBatchModal(${p.id})" title="تشغيل خط إنتاج لخصم المواد الخام وتعبئة المنتج">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                 إنتاج دفعة
@@ -259,6 +360,7 @@ const ProductsManager = {
       this.addIngredientRow();
     }
 
+    await this.populateImportBaseDropdown();
     this.recalculateProductCost();
     App.openModal('modal-product');
   },
@@ -580,6 +682,7 @@ const ProductsManager = {
   // --- Recipe & Cost Breakdown Modal ---
 
   async openRecipeModal(productId) {
+    this.currentViewRecipeId = productId;
     const product = await db.getById('products', productId);
     if (!product) return;
 
@@ -624,5 +727,409 @@ const ProductsManager = {
       console.error(err);
       App.toast('تعذر حذف المنتج', 'error');
     }
+  },
+
+  // --- Size Derivation & Formula Scaling Feature ---
+  // (اشتقاق حجم جديد وتطبيق نفس معادلة الـ 1000 جم)
+
+  async openDeriveSizeModal(productId = null) {
+    await this.refreshMaterialsList();
+    const products = await db.getAll('products');
+    if (products.length === 0) {
+      App.toast('لا توجد منتجات مسجلة لاشتقاق الحجم منها. يرجى إضافة منتج بتركيبة 1000 جم أولاً', 'warning');
+      return;
+    }
+
+    const select = document.getElementById('derive-base-prod-id');
+    if (!select) return;
+
+    // Populate products dropdown (Highlighting 1000g products)
+    select.innerHTML = products.map(p => {
+      const is1000 = (Number(p.netWeight) === 1000);
+      const badgeText = is1000 ? '⭐ تركيبة 1000 جم (كيلو)' : `${p.netWeight || 0} جم`;
+      return `<option value="${p.id}" ${productId && Number(p.id) === Number(productId) ? 'selected' : ''}>
+        ${p.name} (${badgeText} | ${p.code})
+      </option>`;
+    }).join('');
+
+    if (!productId) {
+      const pref = products.find(p => Number(p.netWeight) === 1000) || products[0];
+      if (pref) select.value = pref.id;
+    }
+
+    // Default target weight to 100g
+    const targetWeightInput = document.getElementById('derive-target-weight');
+    if (targetWeightInput) {
+      targetWeightInput.value = 100;
+    }
+    document.querySelectorAll('.quick-size-pill').forEach(pill => {
+      pill.classList.toggle('active', pill.dataset.weight === '100');
+    });
+
+    const instantProduceCb = document.getElementById('derive-instant-produce');
+    if (instantProduceCb) {
+      instantProduceCb.checked = false;
+      const details = document.getElementById('derive-produce-details');
+      if (details) details.style.display = 'none';
+    }
+
+    await this.recalculateDerivedProduct(true);
+    App.openModal('modal-derive-size');
+  },
+
+  async recalculateDerivedProduct(isFullReset = false) {
+    const baseSelect = document.getElementById('derive-base-prod-id');
+    if (!baseSelect || !baseSelect.value) return;
+
+    const baseProduct = await db.getById('products', Number(baseSelect.value));
+    if (!baseProduct) return;
+
+    this.currentDerivedBaseProduct = baseProduct;
+
+    const targetWeightInput = document.getElementById('derive-target-weight');
+    const targetWeight = parseFloat(targetWeightInput ? targetWeightInput.value : 100) || 100;
+
+    const baseWeight = parseFloat(baseProduct.netWeight) || 1000;
+    const ratio = baseWeight > 0 ? (targetWeight / baseWeight) : 1;
+
+    // Base Product Previews
+    const baseWeightPrev = document.getElementById('derive-base-weight-preview');
+    if (baseWeightPrev) baseWeightPrev.textContent = baseWeight;
+
+    const baseIngCount = document.getElementById('derive-base-ingredients-count');
+    if (baseIngCount) baseIngCount.textContent = (baseProduct.ingredients || []).length;
+
+    const baseRawCost = document.getElementById('derive-base-raw-cost');
+    if (baseRawCost) baseRawCost.textContent = (baseProduct.rawMaterialsCost || 0).toFixed(2);
+
+    const baseSellingPrice = document.getElementById('derive-base-selling-price');
+    if (baseSellingPrice) baseSellingPrice.textContent = (baseProduct.sellingPrice || 0).toFixed(2);
+
+    // Scaling Ratio Previews
+    const ratioPercentElem = document.getElementById('derive-ratio-percent');
+    if (ratioPercentElem) ratioPercentElem.textContent = `${(ratio * 100).toFixed(2)}%`;
+
+    const ratioFractionElem = document.getElementById('derive-ratio-fraction');
+    if (ratioFractionElem) ratioFractionElem.textContent = `(${targetWeight} جم ÷ ${baseWeight} جم)`;
+
+    const targetSizeLabel = document.getElementById('derive-target-size-label');
+    if (targetSizeLabel) targetSizeLabel.textContent = `${targetWeight} جم`;
+
+    const totalBadge = document.getElementById('derive-total-scaled-weight-badge');
+    if (totalBadge) totalBadge.textContent = `إجمالي الوزن: ${targetWeight} جم (${(ratio * 100).toFixed(1)}%)`;
+
+    // Propose Name and Code
+    const nameInput = document.getElementById('derive-prod-name');
+    const codeInput = document.getElementById('derive-prod-code');
+    if (nameInput && (isFullReset || !nameInput.value || nameInput.dataset.auto === nameInput.value)) {
+      const cleanBaseName = (baseProduct.name || '').replace(/\s*-\s*\d+\s*(جم|مل|g|ml)/gi, '').trim();
+      nameInput.value = `${cleanBaseName} - ${targetWeight} جم`;
+      nameInput.dataset.auto = nameInput.value;
+    }
+    if (codeInput && (isFullReset || !codeInput.value || codeInput.dataset.auto === codeInput.value)) {
+      const cleanBaseCode = (baseProduct.code || 'PRD').replace(/-\d+G$/gi, '').trim();
+      codeInput.value = `${cleanBaseCode}-${Math.round(targetWeight)}G`;
+      codeInput.dataset.auto = codeInput.value;
+    }
+
+    // Packaging & Labor defaults
+    const packInput = document.getElementById('derive-packaging-cost');
+    const laborInput = document.getElementById('derive-labor-cost');
+    if (isFullReset) {
+      if (packInput) packInput.value = targetWeight <= 50 ? 5 : (targetWeight <= 100 ? 6 : (targetWeight <= 250 ? 8 : 10));
+      if (laborInput) laborInput.value = targetWeight <= 100 ? 3 : 4;
+      const profitTypeSel = document.getElementById('derive-profit-type');
+      const profitMarginInp = document.getElementById('derive-profit-margin');
+      if (profitTypeSel && baseProduct.profitType) profitTypeSel.value = baseProduct.profitType;
+      if (profitMarginInp && baseProduct.profitMargin) profitMarginInp.value = baseProduct.profitMargin;
+    }
+
+    // Scale Ingredients
+    const matMap = new Map(this.cachedMaterials.map(m => [m.id, m]));
+    const tbody = document.getElementById('derive-ingredients-table-body');
+    let rawMaterialsTotal = 0;
+    const scaledIngredients = [];
+
+    const rowsHtml = (baseProduct.ingredients || []).map(ing => {
+      const mat = matMap.get(Number(ing.materialId));
+      const costPerGram = mat ? (mat.costPerGram || 0) : (ing.costPerGram || 0);
+      const scaledG = Math.round((ing.grams * ratio) * 1000) / 1000;
+      const itemCost = Math.round((scaledG * costPerGram) * 100) / 100;
+      rawMaterialsTotal += itemCost;
+
+      scaledIngredients.push({
+        materialId: Number(ing.materialId),
+        materialName: ing.materialName || (mat ? mat.name : 'مادة'),
+        grams: scaledG,
+        costPerGram,
+        totalCost: itemCost
+      });
+
+      return `
+        <tr>
+          <td><strong>${ing.materialName || (mat ? mat.name : 'مادة')}</strong></td>
+          <td><span style="color:var(--text-secondary);">${ing.grams} جم</span></td>
+          <td><strong style="color:#7c3aed;">${scaledG} جم</strong></td>
+          <td>${costPerGram.toFixed(3)} ج/جم</td>
+          <td><strong>${itemCost.toFixed(2)} ج.م</strong></td>
+        </tr>
+      `;
+    }).join('');
+
+    if (tbody) tbody.innerHTML = rowsHtml;
+    this.currentDerivedIngredients = scaledIngredients;
+
+    // Financial Calculation
+    const packagingCost = parseFloat(packInput ? packInput.value : 0) || 0;
+    const laborCost = parseFloat(laborInput ? laborInput.value : 0) || 0;
+    const overhead = packagingCost + laborCost;
+    const totalCost = Math.round((rawMaterialsTotal + overhead) * 100) / 100;
+
+    const profitType = document.getElementById('derive-profit-type').value;
+    const profitMargin = parseFloat(document.getElementById('derive-profit-margin').value) || 0;
+
+    let sellingPrice = 0;
+    if (profitType === 'percent') {
+      sellingPrice = totalCost * (1 + (profitMargin / 100));
+    } else {
+      sellingPrice = totalCost + profitMargin;
+    }
+
+    // Update Display Elements
+    document.getElementById('derive-calc-raw-materials').textContent = rawMaterialsTotal.toFixed(2);
+    document.getElementById('derive-calc-overhead').textContent = overhead.toFixed(2);
+
+    const totalCostElem = document.getElementById('derive-calc-total-cost');
+    totalCostElem.textContent = totalCost.toFixed(2);
+    totalCostElem.dataset.val = totalCost;
+
+    const sellingPriceInput = document.getElementById('derive-selling-price');
+    sellingPriceInput.value = Math.round(sellingPrice * 100) / 100;
+
+    const profitBadge = document.getElementById('derive-profit-badge');
+    const profitVal = (sellingPrice - totalCost).toFixed(2);
+    profitBadge.textContent = `صافي الربح المتوقع للعبوة: +${profitVal} ج.م`;
+
+    this.checkDerivedBatchSufficiency();
+  },
+
+  checkDerivedBatchSufficiency() {
+    const instantCb = document.getElementById('derive-instant-produce');
+    const checkContainer = document.getElementById('derive-produce-sufficiency-check');
+    const btnSubmit = document.getElementById('btn-save-derived-product');
+    if (!instantCb || !instantCb.checked || !checkContainer) return;
+
+    const qty = parseInt(document.getElementById('derive-produce-quantity').value) || 0;
+    if (qty <= 0) {
+      checkContainer.innerHTML = '<span style="color:var(--danger);">يرجى تحديد كمية أكبر من صفر</span>';
+      return;
+    }
+
+    const matMap = new Map(this.cachedMaterials.map(m => [m.id, m]));
+    let allSufficient = true;
+    let shortages = [];
+
+    (this.currentDerivedIngredients || []).forEach(ing => {
+      const mat = matMap.get(Number(ing.materialId));
+      const reqGrams = (ing.grams || 0) * qty;
+      const stockG = mat ? (mat.stockGrams || 0) : 0;
+      if (stockG < reqGrams) {
+        allSufficient = false;
+        shortages.push(`${ing.materialName}: مطلوب ${reqGrams.toLocaleString()} جم، المتاح ${stockG.toLocaleString()} جم`);
+      }
+    });
+
+    if (allSufficient) {
+      checkContainer.innerHTML = `<span style="color:var(--success); font-weight:700;">✅ رصيد المواد الخام متوفر بالمخزن لتصنيع ${qty} عبوة فورياً وخصم الخامات.</span>`;
+      if (btnSubmit) btnSubmit.disabled = false;
+    } else {
+      checkContainer.innerHTML = `<div style="color:var(--danger); font-size:0.8rem; line-height:1.4;">
+        ⚠️ عجز في رصيد المواد الخام لتصنيع هذه الدفعة:<br>
+        • ${shortages.join('<br>• ')}
+      </div>`;
+    }
+  },
+
+  async handleSaveDerivedProduct(e) {
+    e.preventDefault();
+    if (!this.currentDerivedBaseProduct) {
+      App.toast('يرجى اختيار منتج أساسي', 'error');
+      return;
+    }
+
+    const code = document.getElementById('derive-prod-code').value.trim();
+    const name = document.getElementById('derive-prod-name').value.trim();
+    const targetWeight = parseFloat(document.getElementById('derive-target-weight').value) || 0;
+    const packagingCost = parseFloat(document.getElementById('derive-packaging-cost').value) || 0;
+    const laborCost = parseFloat(document.getElementById('derive-labor-cost').value) || 0;
+    const profitType = document.getElementById('derive-profit-type').value;
+    const profitMargin = parseFloat(document.getElementById('derive-profit-margin').value) || 0;
+    const sellingPrice = parseFloat(document.getElementById('derive-selling-price').value) || 0;
+    const rawMaterialsCost = parseFloat(document.getElementById('derive-calc-raw-materials').textContent) || 0;
+    const totalCost = parseFloat(document.getElementById('derive-calc-total-cost').dataset.val) || 0;
+
+    if (!this.currentDerivedIngredients || this.currentDerivedIngredients.length === 0) {
+      App.toast('لا توجد مكونات في التركيبة المحسوبة', 'warning');
+      return;
+    }
+
+    const isInstantProduce = document.getElementById('derive-instant-produce').checked;
+    const produceQty = parseInt(document.getElementById('derive-produce-quantity').value) || 0;
+    const produceNotes = document.getElementById('derive-produce-notes').value.trim();
+
+    const payload = {
+      code,
+      name,
+      category: this.currentDerivedBaseProduct.category || 'عام',
+      netWeight: targetWeight,
+      ingredients: this.currentDerivedIngredients,
+      rawMaterialsCost,
+      packagingCost,
+      laborCost,
+      totalCost,
+      profitType,
+      profitMargin,
+      sellingPrice,
+      stockUnits: 0,
+      minStockUnits: 5,
+      notes: `مشتق بمعادلة نسبية من (${this.currentDerivedBaseProduct.name} - ${this.currentDerivedBaseProduct.netWeight || 1000} جم)`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    try {
+      const createdRes = await db.add('products', payload);
+      const newProdId = (createdRes && typeof createdRes === 'object' && createdRes.id) ? createdRes.id : (typeof createdRes === 'number' ? createdRes : null);
+
+      if (isInstantProduce && produceQty > 0 && newProdId) {
+        await db.produceBatch(newProdId, produceQty, produceNotes || `إنتاج أولي لحجم ${targetWeight} جم`);
+        App.toast(`تم إنشاء المنتج الجديد (${name}) وتصنيع ${produceQty} عبوة بنجاح وخصم الخامات من المخزن!`, 'success');
+      } else {
+        App.toast(`تم حفظ المنتج الجديد (${name}) بنجاح بتطبيق معادلة الـ 1000 جم`, 'success');
+      }
+
+      App.closeModal('modal-derive-size');
+      await this.render();
+      if (window.MaterialsManager) await MaterialsManager.render();
+      if (window.POS) await POS.refreshCatalog();
+      if (window.App) await App.updateDashboard();
+    } catch (err) {
+      console.error(err);
+      App.toast(err.message || 'حدث خطأ أثناء حفظ المنتج المشتق', 'error');
+    }
+  },
+
+  async populateImportBaseDropdown() {
+    const select = document.getElementById('modal-import-base-select');
+    if (!select) return;
+    const products = await db.getAll('products');
+    select.innerHTML = '<option value="">-- اختر تركيبة أساسية --</option>' + products.map(p => {
+      const is1000 = (Number(p.netWeight) === 1000);
+      const mark = is1000 ? '⭐ ' : '';
+      return `<option value="${p.id}">${mark}${p.name} (${p.netWeight || 0} جم)</option>`;
+    }).join('');
+  },
+
+  async applyImportedFormula(baseProductId, targetWeight) {
+    const baseProduct = await db.getById('products', Number(baseProductId));
+    if (!baseProduct) {
+      App.toast('المنتج الأساسي غير موجود', 'error');
+      return;
+    }
+    if (!baseProduct.ingredients || baseProduct.ingredients.length === 0) {
+      App.toast('هذا المنتج لا يحتوي على تركيبة مواد خام', 'warning');
+      return;
+    }
+
+    const baseWeight = parseFloat(baseProduct.netWeight) || 1000;
+    const ratio = baseWeight > 0 ? (targetWeight / baseWeight) : 1;
+
+    const container = document.getElementById('ingredients-container');
+    container.innerHTML = '';
+
+    baseProduct.ingredients.forEach(ing => {
+      const scaledG = Math.round((ing.grams * ratio) * 1000) / 1000;
+      this.addIngredientRow(ing.materialId, scaledG);
+    });
+
+    const netWeightInput = document.getElementById('prod-net-weight');
+    if (netWeightInput) {
+      netWeightInput.value = targetWeight;
+      netWeightInput.dataset.auto = targetWeight;
+    }
+
+    const packInput = document.getElementById('prod-packaging-cost');
+    const laborInput = document.getElementById('prod-labor-cost');
+    if (packInput && (!packInput.value || packInput.value === '8')) {
+      packInput.value = targetWeight <= 100 ? 6 : (targetWeight <= 250 ? 8 : (baseProduct.packagingCost || 10));
+    }
+    if (laborInput && (!laborInput.value || laborInput.value === '4')) {
+      laborInput.value = targetWeight <= 100 ? 3 : (baseProduct.laborCost || 4);
+    }
+
+    if (baseProduct.profitType) document.getElementById('prod-profit-type').value = baseProduct.profitType;
+    if (baseProduct.profitMargin) document.getElementById('prod-profit-margin').value = baseProduct.profitMargin;
+
+    const nameInput = document.getElementById('prod-name');
+    if (nameInput && (!nameInput.value || nameInput.value.includes('PRD-'))) {
+      const cleanBaseName = (baseProduct.name || '').replace(/\s*-\s*\d+\s*(جم|مل|g|ml)/gi, '').trim();
+      nameInput.value = `${cleanBaseName} - ${targetWeight} جم`;
+    }
+    const catInput = document.getElementById('prod-category');
+    if (catInput && !catInput.value && baseProduct.category) {
+      catInput.value = baseProduct.category;
+    }
+
+    this.recalculateProductCost();
+    App.toast(`تم تطبيق تركيبة (${baseProduct.name}) على حجم ${targetWeight} جم بنجاح`, 'success');
+  },
+
+  scaleCurrentFormula() {
+    const container = document.getElementById('ingredients-container');
+    if (!container) return;
+    const rows = container.querySelectorAll('.ingredient-row');
+    if (rows.length === 0) {
+      App.toast('لا توجد مكونات في التركيبة لتحجيمها', 'warning');
+      return;
+    }
+
+    const netWeightInput = document.getElementById('prod-net-weight');
+    let currentTotalGrams = 0;
+    rows.forEach(r => {
+      const inp = r.querySelector('.ing-grams');
+      currentTotalGrams += parseFloat(inp.value) || 0;
+    });
+
+    if (currentTotalGrams <= 0) {
+      App.toast('يرجى تحديد أوزان المكونات الحالية أولاً', 'warning');
+      return;
+    }
+
+    const newWeightStr = prompt(`الوزن الحالي لمجموع المكونات هو ${currentTotalGrams} جم.\nأدخل الوزن الجديد المطلوب (بالجرام) لتطبيق نفس المعادلة والنسب:`, '100');
+    if (!newWeightStr) return;
+
+    const targetWeight = parseFloat(newWeightStr);
+    if (!targetWeight || targetWeight <= 0) {
+      App.toast('قيمة الوزن الجديد غير صالحة', 'error');
+      return;
+    }
+
+    const ratio = targetWeight / currentTotalGrams;
+    rows.forEach(r => {
+      const inp = r.querySelector('.ing-grams');
+      const oldG = parseFloat(inp.value) || 0;
+      const newG = Math.round((oldG * ratio) * 1000) / 1000;
+      inp.value = newG;
+      inp.dispatchEvent(new Event('input'));
+    });
+
+    if (netWeightInput) {
+      netWeightInput.value = targetWeight;
+      netWeightInput.dataset.auto = targetWeight;
+    }
+
+    this.recalculateProductCost();
+    App.toast(`تم تحجيم التركيبة بنجاح من ${currentTotalGrams} جم إلى ${targetWeight} جم بنفس النسب`, 'success');
   }
 };
+

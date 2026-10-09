@@ -1572,3 +1572,68 @@ svg {
     font-size: 0.8rem !important;
   }
 }
+
+/* ==========================================================================
+   Recipe Scaling & Size Derivation Feature (ميزة اشتقاق الأحجام وتطبيق المعادلة)
+   ========================================================================== */
+.btn-scale {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+  color: #ffffff !important;
+  border-color: #6d28d9 !important;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3) !important;
+}
+.btn-scale:hover {
+  opacity: 0.95 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.4) !important;
+}
+
+.quick-size-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.quick-size-pill {
+  background: #f3e8ff;
+  color: #6b21a8;
+  border: 1px solid #d8b4fe;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.quick-size-pill:hover,
+.quick-size-pill.active {
+  background: #7c3aed;
+  color: #ffffff;
+  border-color: #7c3aed;
+  transform: scale(1.05);
+}
+
+.scale-ratio-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #fdf4ff;
+  border: 1px solid #f0abfc;
+  color: #a21caf;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.scale-helper-banner {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border: 1px solid #d8b4fe;
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  margin-bottom: 1rem;
+}
+

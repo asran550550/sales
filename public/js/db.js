@@ -869,6 +869,33 @@ class CosmeticsDB {
         minStockUnits: 8,
         notes: 'مهدئ للبشرة بعد التعرض للشمس وعلاج الاحمرار',
         createdAt: new Date().toISOString()
+      },
+      {
+        code: 'PRD-1000',
+        name: 'كريم الأساس والترطيب الفائق (معادلة 1000 جم)',
+        category: 'كريمات وترطيب',
+        netWeight: 1000,
+        ingredients: [
+          { materialId: mByCode['RM-002'].id, materialName: mByCode['RM-002'].name, grams: 350, costPerGram: mByCode['RM-002'].costPerGram, totalCost: 350 * mByCode['RM-002'].costPerGram },
+          { materialId: mByCode['RM-001'].id, materialName: mByCode['RM-001'].name, grams: 120, costPerGram: mByCode['RM-001'].costPerGram, totalCost: 120 * mByCode['RM-001'].costPerGram },
+          { materialId: mByCode['RM-005'].id, materialName: mByCode['RM-005'].name, grams: 80, costPerGram: mByCode['RM-005'].costPerGram, totalCost: 80 * mByCode['RM-005'].costPerGram },
+          { materialId: mByCode['RM-007'].id, materialName: mByCode['RM-007'].name, grams: 60, costPerGram: mByCode['RM-007'].costPerGram, totalCost: 60 * mByCode['RM-007'].costPerGram },
+          { materialId: mByCode['RM-008'].id, materialName: mByCode['RM-008'].name, grams: 350, costPerGram: mByCode['RM-008'].costPerGram, totalCost: 350 * mByCode['RM-008'].costPerGram },
+          { materialId: mByCode['RM-009'].id, materialName: mByCode['RM-009'].name, grams: 30, costPerGram: mByCode['RM-009'].costPerGram, totalCost: 30 * mByCode['RM-009'].costPerGram },
+          { materialId: mByCode['RM-010'].id, materialName: mByCode['RM-010'].name, grams: 5, costPerGram: mByCode['RM-010'].costPerGram, totalCost: 5 * mByCode['RM-010'].costPerGram },
+          { materialId: mByCode['RM-006'].id, materialName: mByCode['RM-006'].name, grams: 5, costPerGram: mByCode['RM-006'].costPerGram, totalCost: 5 * mByCode['RM-006'].costPerGram }
+        ],
+        packagingCost: 20.0,
+        laborCost: 10.0,
+        rawMaterialsCost: 0,
+        totalCost: 0,
+        profitMargin: 50,
+        profitType: 'percent',
+        sellingPrice: 0,
+        stockUnits: 15,
+        minStockUnits: 3,
+        notes: 'التركيبة الأساسية المحسوبة على حجم الكيلو (1000 جم) لاشتقاق وتوليد العبوات بأحجام مختلفة',
+        createdAt: new Date().toISOString()
       }
     ];
 

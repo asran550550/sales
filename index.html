@@ -2043,6 +2043,11 @@ svg {
                 </select>
               </div>
 
+              <button type="button" id="btn-open-derive-modal" class="btn btn-secondary" onclick="ProductsManager.openDeriveSizeModal()" style="border: 1px solid #7c3aed; color: #7c3aed; background: #faf5ff;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path></svg>
+                ⚖️ توليد حجم جديد من تركيبة سابقة
+              </button>
+
               <button id="btn-add-product" class="btn btn-primary">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 إضافة وتصنيع منتج جديد
@@ -2555,9 +2560,33 @@ svg {
                 <strong style="color:var(--primary-dark); font-size:0.95rem;">تركيبة المواد الخام لكل عبوة واحدة (Recipe / BOM)</strong>
                 <p style="font-size:0.75rem; color:var(--text-secondary);">اختر المواد الخام وحدد وزن كل مادة بالجرام لحساب تكلفة التركيبة بدقة</p>
               </div>
-              <button type="button" id="btn-add-ingredient-row" class="btn btn-sm btn-primary">
-                + إضافة مكون خام
-              </button>
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <button type="button" id="btn-scale-current-formula" class="btn btn-sm btn-secondary" title="تحجيم أوزان المكونات الحالية إلى وزن مستهدف">
+                  ⚖️ تحجيم التركيبة
+                </button>
+                <button type="button" id="btn-add-ingredient-row" class="btn btn-sm btn-primary">
+                  + إضافة مكون خام
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Import & Scale from Base Product Tool -->
+            <div class="scale-helper-banner">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                <div>
+                  <strong style="color: #6b21a8; font-size: 0.92rem;">⚖️ استيراد وتطبيق معادلة (مثلاً تحويل تركيبة 1000 جم إلى 100 جم أو 50 جم):</strong>
+                  <p style="font-size: 0.76rem; color: #581c87; margin: 0.2rem 0 0 0;">اختر تركيبة أساسية وطبق نسبتها بالجرام على هذا المنتج بنقرة واحدة</p>
+                </div>
+                <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+                  <select id="modal-import-base-select" class="form-control" style="max-width:210px; font-size:0.82rem; height:34px;">
+                    <option value="">-- اختر تركيبة أساسية --</option>
+                  </select>
+                  <input type="number" id="modal-import-target-grams" class="form-control" placeholder="الوزن (جم)" style="max-width:110px; font-size:0.82rem; height:34px;" value="100">
+                  <button type="button" id="btn-modal-apply-import" class="btn btn-sm btn-scale" style="height:34px; padding:0 10px;">
+                    تطبيق المعادلة
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="ingredient-header-row" style="display:grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 40px; gap:0.75rem; padding:0.4rem 0.85rem; font-size:0.78rem; font-weight:700; color:var(--text-secondary);">
@@ -2747,10 +2776,233 @@ svg {
 
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-scale" onclick="ProductsManager.openDeriveSizeModal(ProductsManager.currentViewRecipeId)" style="margin-left:auto;">
+          ⚖️ تطبيق هذه المعادلة على حجم جديد (100 جم / 50 جم...)
+        </button>
         <button type="button" class="btn btn-secondary" data-modal-close>إغلاق</button>
       </div>
     </div>
   </div>
+
+  <!-- Modal: Derive / Scale Product Size from Formula (توليد حجم عبوة جديد بتطبيق المعادلة) -->
+  <div id="modal-derive-size" class="modal-backdrop">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header" style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); color: white;">
+        <div>
+          <h3 style="color: white; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+            <span>⚖️ تطبيق المعادلة وتوليد حجم عبوة جديد</span>
+          </h3>
+          <p style="font-size: 0.8rem; color: #e9d5ff; margin: 0.25rem 0 0 0;">
+            اشتقاق عبوات بأحجام مختلفة (100 جم، 50 جم، إلخ) من تركيبة المنتج الأساسي (1000 جم) بنفس النسب الدقيقة
+          </p>
+        </div>
+        <button class="modal-close" style="color: white;">&times;</button>
+      </div>
+
+      <form id="form-derive-size" onsubmit="ProductsManager.handleSaveDerivedProduct(event)">
+        <div class="modal-body">
+          
+          <!-- 1. Base Product Selection & Info -->
+          <div style="background: #faf5ff; border: 1px solid #d8b4fe; border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
+            <div class="form-row">
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" style="color: #6b21a8; font-weight: 700;">
+                  <span class="req">*</span> المنتج الأصلي (صاحب تركيبة الـ 1000 جم / الأساسية):
+                </label>
+                <select id="derive-base-prod-id" class="form-control" style="font-weight: 600; border-color: #c084fc;" required>
+                  <!-- Populated dynamically with products -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">الوزن الأساسي للتركيبة:</label>
+                <div style="padding: 0.6rem 0.85rem; background: #fff; border: 1px solid #e9d5ff; border-radius: var(--radius-sm); font-weight: 700; color: #7c3aed;">
+                  <span id="derive-base-weight-preview">1000</span> جم
+                </div>
+              </div>
+            </div>
+
+            <!-- Base Product Summary Badges -->
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; font-size: 0.82rem; color: #581c87;">
+              <div>• عدد مكونات التركيبة: <strong id="derive-base-ingredients-count">0</strong></div>
+              <div>• تكلفة الخامات للتركيبة الأساسية: <strong id="derive-base-raw-cost">0.00</strong> ج.م</div>
+              <div>• سعر بيع المنتج الأصلي: <strong id="derive-base-selling-price">0.00</strong> ج.م</div>
+            </div>
+          </div>
+
+          <!-- 2. Target Size & Quick Selection -->
+          <div style="background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
+            <div class="form-row" style="align-items: flex-end;">
+              <div class="form-group">
+                <label class="form-label" style="font-weight: 700; color: var(--text-primary);">
+                  <span class="req">*</span> الحجم / الوزن الجديد المطلوب (بالجرام):
+                </label>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <input type="number" id="derive-target-weight" class="form-control" min="1" step="0.1" value="100" style="font-size: 1.3rem; font-weight: 800; color: #7c3aed; text-align: center; max-width: 160px;" required>
+                  <span style="font-weight: 700; color: var(--text-secondary);">جم</span>
+                </div>
+              </div>
+
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" style="font-size: 0.82rem; color: var(--text-secondary);">
+                  أحجام شائعة سريعة بنقرة واحدة:
+                </label>
+                <div class="quick-size-pills">
+                  <button type="button" class="quick-size-pill" data-weight="30">30 جم</button>
+                  <button type="button" class="quick-size-pill" data-weight="50">50 جم</button>
+                  <button type="button" class="quick-size-pill active" data-weight="100">100 جم</button>
+                  <button type="button" class="quick-size-pill" data-weight="150">150 جم</button>
+                  <button type="button" class="quick-size-pill" data-weight="200">200 جم</button>
+                  <button type="button" class="quick-size-pill" data-weight="250">250 جم</button>
+                  <button type="button" class="quick-size-pill" data-weight="500">500 جم</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Scaling Ratio Box -->
+            <div style="margin-top: 0.85rem; padding: 0.6rem 0.85rem; background: #faf5ff; border: 1px dashed #d8b4fe; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <div class="scale-ratio-indicator">
+                <span>معامل تطبيق المعادلة:</span>
+                <span id="derive-ratio-percent">10%</span>
+                <span id="derive-ratio-fraction" style="font-size: 0.75rem; color: #7c3aed;">(100 جم ÷ 1000 جم)</span>
+              </div>
+              <div style="font-size: 0.8rem; color: #6b21a8;">
+                💡 يتم ضرب كل خامة في هذه النسبة للحفاظ على التركيبة بدقة 100%
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. New Product Identity -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label"><span class="req">*</span> كود المنتج الجديد</label>
+              <input type="text" id="derive-prod-code" class="form-control" required>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label"><span class="req">*</span> اسم المنتج الجديد بالحجم المطلوب</label>
+              <input type="text" id="derive-prod-name" class="form-control" required>
+            </div>
+          </div>
+
+          <!-- 4. Ingredients Scaled Breakdown Table -->
+          <div style="margin-bottom: 1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <strong style="color:var(--text-primary); font-size:0.92rem;">
+                📋 جدول تفكيك المواد الخام بعد تطبيق المعادلة على الحجم الجديد:
+              </strong>
+              <span id="derive-total-scaled-weight-badge" class="badge badge-primary">
+                إجمالي الوزن: 100 جم
+              </span>
+            </div>
+
+            <div class="table-responsive" style="max-height: 260px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-md);">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>المادة الخام</th>
+                    <th>في المنتج الأصلي</th>
+                    <th style="color: #7c3aed;">في الحجم الجديد (النسبة)</th>
+                    <th>سعر الجرام</th>
+                    <th>تكلفة المادة للعبوة</th>
+                  </tr>
+                </thead>
+                <tbody id="derive-ingredients-table-body">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 5. Costing & Pricing for the new size -->
+          <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1.25rem;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">تكلفة عبوة وتغليف هذا الحجم</label>
+                <input type="number" id="derive-packaging-cost" step="0.5" min="0" value="6" class="form-control">
+              </div>
+              <div class="form-group">
+                <label class="form-label">مصنعية تشغيل هذا الحجم</label>
+                <input type="number" id="derive-labor-cost" step="0.5" min="0" value="3" class="form-control">
+              </div>
+              <div class="form-group">
+                <label class="form-label">نوع هامش الربح</label>
+                <select id="derive-profit-type" class="form-control">
+                  <option value="percent">نسبة مئوية (%)</option>
+                  <option value="fixed">مبلغ مالي ثابت (ج.م)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">قيمة هامش الربح</label>
+                <input type="number" id="derive-profit-margin" step="1" min="0" value="60" class="form-control">
+              </div>
+            </div>
+
+            <!-- Financial Summary Box -->
+            <div class="formula-summary-box" style="margin-top: 0.75rem;">
+              <div class="calc-row">
+                <span>إجمالي تكلفة المواد الخام للحجم الجديد:</span>
+                <strong><span id="derive-calc-raw-materials">0.00</span> ج.م</strong>
+              </div>
+              <div class="calc-row">
+                <span>التغليف + المصنعية للعبوة الجديدة:</span>
+                <strong><span id="derive-calc-overhead">0.00</span> ج.م</strong>
+              </div>
+              <div class="calc-row total-row">
+                <span>التكلفة الإجمالية للعبوة الجديدة (Cost):</span>
+                <strong><span id="derive-calc-total-cost">0.00</span> ج.م</strong>
+              </div>
+
+              <div class="selling-price-highlight" style="background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%); border-color: #e879f9;">
+                <h4 style="color: #86198f;">سعر البيع المقترح لعبوة <span id="derive-target-size-label">100 جم</span>:</h4>
+                <div style="display:flex; justify-content:center; align-items:center; gap:0.5rem; margin-top:0.4rem;">
+                  <input type="number" id="derive-selling-price" step="0.5" min="0" class="form-control" style="max-width:200px; text-align:center; font-size:1.4rem; font-weight:800; color:#7c3aed;">
+                  <span style="font-weight:bold; font-size:1.1rem; color:#7c3aed;">ج.م</span>
+                </div>
+                <div id="derive-profit-badge" class="badge badge-success" style="margin-top:0.5rem; font-size:0.85rem; padding:4px 12px;">
+                  صافي الربح المتوقع للعبوة: +0.00 ج.م
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Batch Production Option (Instant Production) -->
+          <div style="background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <input type="checkbox" id="derive-instant-produce" style="width: 18px; height: 18px; cursor: pointer;">
+              <label for="derive-instant-produce" style="font-weight: 700; color: var(--accent); cursor: pointer; margin: 0;">
+                🌸 تشغيل خط إنتاج فوري لتصنيع هذه العبوات وتعبئة رصيد المخزن فوراً مع خصم الخامات
+              </label>
+            </div>
+
+            <div id="derive-produce-details" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border);">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label"><span class="req">*</span> عدد العبوات المراد إنتاجها الآن:</label>
+                  <input type="number" id="derive-produce-quantity" min="1" step="1" value="10" class="form-control" style="font-weight: 700;">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                  <label class="form-label">ملاحظات تشغيل الدفعة (اختياري)</label>
+                  <input type="text" id="derive-produce-notes" class="form-control" placeholder="إنتاج تجريبي للحجم الجديد...">
+                </div>
+              </div>
+              <div id="derive-produce-sufficiency-check" style="font-size: 0.85rem; margin-top: 0.5rem;">
+                <!-- Live check -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-modal-close>إلغاء</button>
+          <button type="submit" id="btn-save-derived-product" class="btn btn-scale" style="font-size: 0.95rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            تأكيد وإنشاء المنتج بالحجم الجديد
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
   <!-- Modal 6: POS Checkout & Customer Payment -->
   <div id="modal-checkout" class="modal-backdrop">
